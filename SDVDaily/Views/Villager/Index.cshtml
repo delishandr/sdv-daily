@@ -1,0 +1,50 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<Villager>;
+@{
+}
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Birthday</th>
+                <th>Actions</th>
+			</tr>
+        </thead>
+        <tbody>
+        @foreach (Villager villager in Model)
+        {
+            <tr>
+                <td></td>
+                <td>@villager.Name</td>
+                <td>@{
+                    switch (villager.Birthday / 28) 
+                    {
+                        case 0:
+                            <span>Spring</span>
+                            break;
+                        case 1:
+                            <span>Summer</span>
+                            break;
+                        case 2:
+                            <span>Fall</span>
+                            break;
+                        case 3:
+                            <span>Winter</span>
+                            break;
+                        default:
+                            break;
+                    }    
+                
+                } @(villager.Birthday % 28)</td>
+                <td></td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+</div>
