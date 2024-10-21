@@ -1,10 +1,11 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model List<Crop>;
+@model List<CropViewModel>;
 @{
 }
 
+<div class="h3 my-4">@ViewBag.Title</div>
 <div>
     <table class="table">
         <thead>
@@ -14,24 +15,66 @@
                 <th>Category</th>
                 <th>Growth Time</th>
 				<th>Regrowth Time</th>
+                <th>Is Walkable</th>
                 <th>Seasons</th>
                 <th>Actions</th>
 			</tr>
         </thead>
         <tbody>
-        @foreach (Crop crop in Model)
+        @foreach (CropViewModel crop in Model)
         {
             <tr>
                 <td></td>
                 <td>@crop.Name</td>
                 <td>@(crop.CategoryName ?? "-")</td>
-                <td>@crop.GrowthTime</td>
+                <td>
+                    @{
+                        if (crop.Unirrigated != null)
+                        {
+							<span>@crop.GrowthTime (Irrigated)<br />@crop.Unirrigated (Unirrigated)</span>
+                        }
+                        else 
+                        {
+                            <span>@crop.GrowthTime</span>
+                        }
+                    }
+                </td>
                 <td>@crop.RegrowthTime</td>
-                <td>@(string.Join(", ", crop.Seasons.Select(s => s.SeasonName)))</td>
-                <td></td>
+                <td>
+                    @{
+                        if (crop.IsWalkable)
+                        {
+                            <i class="fas fa-check-circle text-success"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-times-circle text-danger"></i>
+                        }
+                    }
+                </td>
+                <td>@crop.Seasons</td>
+                <td>
+                        <button type="button" id="btn-detail" class="btn btn-secondary btn-sm"
+                            data-bs-toggle="modal" data-bs-target="staticModal">
+                            Detail</button>
+                        <button type="button" class="btn btn-primary btn-sm">Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                </td>
             </tr>
         }
 
         </tbody>
     </table>
 </div>
+
+<script>
+    $("#btn-detail").click(() => {
+        $("#staticModalBody").load("/Crop/Detail")
+    })
+</script>
+
+<style scoped>
+    table th, table td {
+        text-align: center;
+    }
+</style>
