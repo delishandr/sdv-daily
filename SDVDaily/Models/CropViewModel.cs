@@ -16,7 +16,9 @@
 		public int? SellPrice { get; set; }
 		public string? Img { get; set; }
 
-        public string? Seasons { get; set; }
+		public List<Season> Seasons { get; set; } = new List<Season>();
+        //public string? Seasons { get; set; }
+		public int?[]? SeasonIds { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }

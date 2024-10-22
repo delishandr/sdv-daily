@@ -24,7 +24,7 @@
         @foreach (CropViewModel crop in Model)
         {
             <tr>
-                <td></td>
+                <td><img src="~/@ViewBag.ImageFolder/crops/@(crop.Id).png" width="40" /></td>
                 <td>@crop.Name</td>
                 <td>@(crop.CategoryName ?? "-")</td>
                 <td>
@@ -52,10 +52,16 @@
                         }
                     }
                 </td>
-                <td>@crop.Seasons</td>
+                @*<td>@crop.Seasons</td>*@
                 <td>
-                        <button type="button" id="btn-detail" class="btn btn-secondary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="staticModal">
+                    @foreach (Season season in crop.Seasons) 
+                    {
+                        <img src="~/@ViewBag.ImageFolder/seasons/@(season.Id).png" width="35" title="@season.Name" />
+                    }
+                </td>
+                <td>
+                        <button type="button" class="btn btn-secondary btn-sm btn-detail"
+                            data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@crop.Id">
                             Detail</button>
                         <button type="button" class="btn btn-primary btn-sm">Edit</button>
                         <button type="button" class="btn btn-danger btn-sm">Delete</button>
@@ -68,8 +74,8 @@
 </div>
 
 <script>
-    $("#btn-detail").click(() => {
-        $("#staticModalBody").load("/Crop/Detail")
+    $(".btn-detail").click((e) => {
+        $("#staticModalLgBody").load("/Crop/Detail/" + $(e.target).data("id"))
     })
 </script>
 

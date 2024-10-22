@@ -7,10 +7,12 @@ namespace SDVDaily.Controllers
     public class CropController : Controller
     {
         private DB_SDV_DailyContext db;
+        private readonly string imageFolder;
 
-        public CropController(DB_SDV_DailyContext _db)
+        public CropController(IConfiguration _config, DB_SDV_DailyContext _db)
         {
             db = _db;
+            imageFolder = _config["ImageFolder"];
         }
         public IActionResult Index()
         {
@@ -36,13 +38,13 @@ namespace SDVDaily.Controllers
                 item.Img = crop.Img;
 
                 var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
-                string seasons = string.Empty;
+                List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+                item.SeasonIds = seasonIds.ToArray();
+
                 foreach (CropSeason cropSeason in cropSeasonList)
                 {
-                    string? season = db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>().Name;
-                    seasons += season + ", ";
+                    item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
                 }
-                item.Seasons = seasons.Substring(0, seasons.Length - 2);
 
                 item.CreatedAt = crop.CreatedAt;
                 item.UpdatedAt = crop.UpdatedAt;
@@ -52,55 +54,46 @@ namespace SDVDaily.Controllers
             }
 
             ViewBag.Title = "Crop List";
+            ViewBag.ImageFolder = imageFolder;
 
 			return View(items);
         }
 
         public IActionResult Detail(int? id)
         {
-            Crop? crop = new Crop();
+            CropViewModel crop = new CropViewModel();
             try
             {
                 if (id > 0)
                 {
-                    crop = (
-                        from c in db.Crops
-                        join cc in db.CropCategories
-                            on c.CategoryId equals cc.Id into HaveCategory
-                        from cc in HaveCategory.DefaultIfEmpty()
-                        where !c.IsDeleted && c.Id == id
-                        select new Crop
-                        {
-                            Id = c.Id,
-                            Name = c.Name,
+                    Crop? findCrop = db.Crops.Where(c => c.Id == id).FirstOrDefault();
+                    crop.Id = findCrop.Id;
+                    crop.Name = findCrop.Name;
 
-                            CategoryId = c.CategoryId,
-                            //CategoryName = cc.Name,
+                    crop.CategoryId = findCrop.CategoryId;
+                    var category = db.CropCategories.Where(cc => cc.Id.Equals(findCrop.CategoryId)).FirstOrDefault();
+                    crop.CategoryName = (category != null ? category.Name : "");
 
-                            GrowthTime = c.GrowthTime,
-                            RegrowthTime = c.RegrowthTime,
-                            Unirrigated = c.Unirrigated,
-                            IsWalkable = c.IsWalkable,
-                            StartYear = c.StartYear,
+                    crop.GrowthTime = findCrop.GrowthTime;
+                    crop.RegrowthTime = findCrop.RegrowthTime;
+                    crop.Unirrigated = findCrop.Unirrigated;
+                    crop.IsWalkable = findCrop.IsWalkable ?? false;
+                    crop.StartYear = findCrop.StartYear;
+                    crop.SellPrice = findCrop.SellPrice;
+                    crop.Img = findCrop.Img;
 
-                            //Seasons = (
-                            //    from cs in db.CropSeasons
-                            //    join s in db.Seasons
-                            //        on cs.SeasonId equals s.Id
-                            //    where cs.CropId == c.Id
-                            //    select new CropSeason
-                            //    {
-                            //        Id = cs.Id,
-                            //        SeasonId = cs.SeasonId,
-                            //        SeasonName = s.Name
-                            //    }
-                            //).ToList(),
+                    var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(findCrop.Id)).ToList();
+                    List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+                    crop.SeasonIds = seasonIds.ToArray();
 
-                            CreatedAt = c.CreatedAt,
-                            UpdatedAt = c.UpdatedAt,
-                            IsDeleted = c.IsDeleted
-                        }
-                    ).FirstOrDefault();
+                    foreach (CropSeason cropSeason in cropSeasonList)
+                    {
+                        crop.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
+                    }
+
+                    crop.CreatedAt = findCrop.CreatedAt;
+                    crop.UpdatedAt = findCrop.UpdatedAt;
+                    crop.IsDeleted = findCrop.IsDeleted;
                 }
                 else if (id == 0)
                 {
@@ -115,6 +108,9 @@ namespace SDVDaily.Controllers
             {
                 Console.WriteLine(e.Message);
             }
+
+            ViewBag.Title = "Crop Detail";
+            ViewBag.ImageFolder = imageFolder;
 
             return View(crop);
         }
