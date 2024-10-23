@@ -1,0 +1,44 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<EventViewModel>
+@{
+}
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Days</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (EventViewModel em in Model)
+            {
+                <tr>
+                    <td>@em.Name</td>
+                    <td>
+                        @{
+                            if (em.Type == "F")
+                            {
+                                <span class="badge rounded-pill bg-success">Festival</span>
+                            }
+                            else if (em.Type == "S")
+                            {
+                                <span class="badge rounded-pill bg-primary">Season</span>
+                            }
+                        }
+                    </td>
+                    <td>@em.Location</td>
+                    <td>@(string.Join(", ", em.Days))</td>
+                    <td>@em.StartTime - @em.EndTime</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>

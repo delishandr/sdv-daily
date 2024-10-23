@@ -19,6 +19,8 @@ namespace SDVDaily.Models
         public virtual DbSet<Crop> Crops { get; set; } = null!;
         public virtual DbSet<CropCategory> CropCategories { get; set; } = null!;
         public virtual DbSet<CropSeason> CropSeasons { get; set; } = null!;
+        public virtual DbSet<Event> Events { get; set; } = null!;
+        public virtual DbSet<EventDay> EventDays { get; set; } = null!;
         public virtual DbSet<Season> Seasons { get; set; } = null!;
         public virtual DbSet<Villager> Villagers { get; set; } = null!;
 
@@ -123,6 +125,79 @@ namespace SDVDaily.Models
                     .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SeasonId).HasColumnName("seasonId");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.ToTable("event");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.EndTime)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("endTime");
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("isDeleted")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Location)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("location");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Preparation)
+                    .HasColumnType("text")
+                    .HasColumnName("preparation");
+
+                entity.Property(e => e.StartTime)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("startTime");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("type");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<EventDay>(entity =>
+            {
+                entity.ToTable("event_day");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Day).HasColumnName("day");
+
+                entity.Property(e => e.EventId).HasColumnName("eventId");
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("isDeleted")
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")

@@ -15,7 +15,7 @@ namespace SDVDaily.Models
         public int? StartYear { get; set; }
         public int? SellPrice { get; set; }
         public string? Img { get; set; }
-		public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
     }
