@@ -10,7 +10,7 @@
         public string? EndTime { get; set; }
         public string? Preparation { get; set; }
 
-        public List<string?> Days { get; set; } = new List<string?>();
+        public string? Days { get; set; }
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

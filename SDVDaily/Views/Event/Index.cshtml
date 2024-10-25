@@ -14,6 +14,7 @@
                 <th>Location</th>
                 <th>Days</th>
                 <th>Time</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -34,11 +35,40 @@
                         }
                     </td>
                     <td>@em.Location</td>
-                    <td>@(string.Join(", ", em.Days))</td>
+                    <td>@em.Days</td>
                     <td>@em.StartTime - @em.EndTime</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
+                            <button type="button" class="btn btn-secondary btn-detail"
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@em.Id">
+                                Detail
+                            </button>
+                            <button type="button" class="btn btn-primary btn-edit"
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@em.Id">
+                                Edit
+                            </button>
+                            <button type="button" class="btn btn-danger">Delete</button>
+                        </div>
+                    </td>
                 </tr>
             }
 
         </tbody>
     </table>
 </div>
+
+<script>
+    $(".btn-detail").click((e) => {
+        $("#staticModalLgBody").load("/Event/Detail/" + $(e.target).data("id"))
+    })
+
+    $(".btn-edit").click((e) => {
+        $("#staticModalLgBody").load("/Event/Edit/" + $(e.target).data("id"))
+    })
+</script>
+
+<style scoped>
+    a {
+        cursor: pointer;
+    }
+</style>

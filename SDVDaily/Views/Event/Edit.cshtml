@@ -1,0 +1,103 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model EventViewModel
+@{
+    Layout = null;
+}
+
+<div>
+    <form action="/Event/Edit/@Model.Id" method="post">
+        <div class="card">
+            <div class="card-body">
+			    <div>
+                    <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+                    <input type="hidden" id="CreatedAt" name="CreatedAt" value="@Model.CreatedAt" />
+				    <div class="row mb-3 d-flex align-items-center">
+					    <div class="col-2 fw-bold">Name</div>
+					    <div class="col-10">
+                            <input class="form-control" type="text" id="Name" name="Name" value="@Model.Name" />
+                        </div>
+				    </div>
+                    <div class="row mb-3 d-flex align-items-center">
+                        <div class="col-2 fw-bold">Type</div>
+                        <div class="col-10">
+                            <select class="form-select" id="Type" name="Type">
+                                @if (Model.Type == "F")
+                                {
+                                    <option value="F" selected>Festival</option>
+                                    <option value="S">Season</option>
+                                }
+                                else if (Model.Type == "S")
+                                {
+                                    <option value="F">Festival</option>
+                                    <option value="S" selected>Season</option>
+                                }
+                                else
+                                {
+                                    <option value="F">Festival</option>
+                                    <option value="S">Season</option>
+                                }
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="row mb-3 d-flex align-items-center">
+                        <div class="col-2 fw-bold">Location</div>
+                        <div class="col-10">
+                            <input class="form-control" type="text" id="Location" name="Location" value="@Model.Location" />
+                        </div>
+                    </div>
+                    <div class="row mb-3 d-flex align-items-center">
+                        <div class="col-2 fw-bold">Start Time</div>
+                        <div class="col-4">
+                            <input class="form-control" type="text" id="StartTime" name="StartTime" value="@Model.StartTime" />
+                        </div>
+                        <div class="col-2 fw-bold">End Time</div>
+                        <div class="col-4">
+                            <input class="form-control" type="text" id="EndTime" name="EndTime" value="@Model.EndTime" />
+                        </div>
+                    </div>
+			    </div>
+                <div class="fw-bold mb-3">Preparation</div>
+                <div class="ck-body-wrapper">
+                    <textarea id="Preparation" runat="server" name="Preparation" asp-for="Preparation">@(Html.Raw(Model.Preparation))</textarea>
+                    <script>
+                        ClassicEditor
+                            .create( document.querySelector( '#Preparation' ) )
+                            .catch( error => {
+                                console.error( error );
+                            } );
+                    </script>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $('#staticModalLgLabel').text("@ViewBag.Title");
+
+    $('#staticModalLg').modal({
+        focus: false
+    });
+</script>
+
+<style scoped>
+    :root {
+        --ck-z-default: 100;
+        --ck-z-panel: calc( var(--ck-z-default) + 999 );
+    }
+
+    .ck-body-wrapper {
+        z-index: 1300 !important;
+    }
+
+    .ck-editor__editable {
+        min-height: 150px;
+    }
+</style>
