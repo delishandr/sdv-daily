@@ -26,7 +26,23 @@
             <tr>
                 <td><img src="~/@ViewBag.ImageFolder/crops/@(crop.Id).png" width="40" /></td>
                 <td>@crop.Name</td>
-                <td>@(crop.CategoryName ?? "-")</td>
+                <td>
+                    @switch (crop.CategoryName)
+                    {
+                        case "Fruit":
+                            <span class="badge rounded-pill bg-danger">Fruit</span>
+                            break;
+                        case "Vegetable":
+                            <span class="badge rounded-pill bg-success">Vegetable</span>
+                            break;
+                        case "Flower":
+                            <span class="badge rounded-pill bg-primary">Flower</span>
+                            break;
+                        default:
+                            <span class="badge rounded-pill bg-secondary">Other</span>
+                            break;
+                    }
+                </td>
                 <td>
                     @{
                         if (crop.Unirrigated != null)
@@ -60,11 +76,17 @@
                     }
                 </td>
                 <td>
-                        <button type="button" class="btn btn-secondary btn-sm btn-detail"
-                            data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@crop.Id">
-                            Detail</button>
-                        <button type="button" class="btn btn-primary btn-sm">Edit</button>
-                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
+                        <button type="button" class="btn btn-secondary btn-detail"
+									data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetail(@crop.Id)">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-edit"
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEdit(@crop.Id)" disabled>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger" disabled><i class="fas fa-trash"></i></button>
+                    </div>
                 </td>
             </tr>
         }
@@ -72,15 +94,84 @@
         </tbody>
     </table>
 </div>
+<div class="mt-2 d-flex">
+    <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="text-secondary">
+            Showing <b>@(ViewBag.StartItem)-@(ViewBag.StartItem + ViewBag.PageSize - 1)</b> of <b>@ViewBag.TotalItems</b>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                @if (ViewBag.Page == 1)
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" onclick="changePage(@ViewBag.Page-1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" onclick="changePage(@ViewBag.Page-1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    if (i == ViewBag.Page)
+                    {
+                        <li class="page-item active"><a class="page-link" onclick="changePage(@i)">@i</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item"><a class="page-link" onclick="changePage(@i)">@i</a></li>
+                    }
+                }
+                @if (ViewBag.Page == ViewBag.TotalPages)
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" aria-label="Next" onclick="changePage(@ViewBag.Page+1)">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" aria-label="Next" onclick="changePage(@ViewBag.Page+1)">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
 
 <script>
-    $(".btn-detail").click((e) => {
-        $("#staticModalLgBody").load("/Crop/Detail/" + $(e.target).data("id"))
-    })
+    function loadDetail(id) {
+        $("#staticModalLgBody").load("/Crop/Detail/" + id);
+    }
+    function loadEdit(id) {
+        $("#staticModalLgBody").load("/Crop/Edit/" + id);
+    }
+    function changePage(page) {
+        location.href = `/Crop?page=${page}`;
+    }
 </script>
 
 <style scoped>
     table th, table td {
         text-align: center;
+        vertical-align: middle;
+    }
+    
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    a:hover {
+        cursor: pointer;
     }
 </style>

@@ -5,6 +5,7 @@
 @{
 }
 
+<div class="h3 my-4">@ViewBag.Title</div>
 <div>
     <table class="table">
         <thead>
@@ -19,7 +20,7 @@
         @foreach (Villager villager in Model)
         {
             <tr>
-                <td></td>
+                <td><img src="~/@ViewBag.ImageFolder/villagers/@(villager.Id).png" width="70" /></td>
                 <td>@villager.Name</td>
                 <td>@{
                     switch (villager.Birthday / 28) 
@@ -41,10 +42,38 @@
                     }    
                 
                 } @(villager.Birthday % 28)</td>
-                <td></td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
+                        <button type="button" class="btn btn-secondary btn-detail"
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetail(@villager.Id)" disabled>
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-edit"
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEdit(@villager.Id)" disabled>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger" disabled><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
             </tr>
         }
 
         </tbody>
     </table>
 </div>
+
+<script>
+    function loadDetail(id) {
+        $("#staticModalLgBody").load("/Villager/Detail/" + id);
+    }
+    function loadEdit(id) {
+        $("#staticModalLgBody").load("/Villager/Edit/" + id);
+    }
+</script>
+
+<style scoped>
+    table th, table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>

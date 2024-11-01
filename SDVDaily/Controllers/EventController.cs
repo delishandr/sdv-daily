@@ -107,7 +107,7 @@ namespace SDVDaily.Controllers
             }
             vmEvent.Days = day;
 
-            ViewBag.Title = "Detail Event";
+            ViewBag.Title = "Event Detail";
 
             return View(vmEvent);
         }

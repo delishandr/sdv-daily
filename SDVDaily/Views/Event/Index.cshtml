@@ -41,13 +41,13 @@
                         <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
                             <button type="button" class="btn btn-secondary btn-detail"
                                     data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@em.Id">
-                                Detail
+                                <i class="fas fa-list-ul"></i>
                             </button>
                             <button type="button" class="btn btn-primary btn-edit"
                                     data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@em.Id">
-                                Edit
+                                <i class="fas fa-edit"></i>
                             </button>
-                            <button type="button" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -59,16 +59,21 @@
 
 <script>
     $(".btn-detail").click((e) => {
-        $("#staticModalLgBody").load("/Event/Detail/" + $(e.target).data("id"))
+        $("#staticModalLgBody").load("/Event/Detail/" + $(e.target).data("id"));
     })
 
     $(".btn-edit").click((e) => {
-        $("#staticModalLgBody").load("/Event/Edit/" + $(e.target).data("id"))
+        $("#staticModalLgBody").load("/Event/Edit/" + $(e.target).data("id"));
     })
 </script>
 
 <style scoped>
     a {
         cursor: pointer;
+    }
+
+    table th, table td {
+        text-align: center;
+        vertical-align: middle;
     }
 </style>
