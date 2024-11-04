@@ -157,5 +157,106 @@ namespace SDVDaily.Controllers
 
             return View(crop);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Add()
+        {
+            // year pake session, sekarang hardcode dulu
+            var cropList = await db.Crops.Where(c => !c.IsDeleted && c.StartYear >= 1).ToListAsync();
+            List<CropViewModel> items = new List<CropViewModel>();
+
+            foreach (Crop crop in cropList)
+            {
+                CropViewModel item = new CropViewModel();
+                item.Id = crop.Id;
+                item.Name = crop.Name;
+                item.StartYear = crop.StartYear;
+                item.GrowthTime = crop.GrowthTime;
+
+                var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
+                List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+                item.SeasonIds = seasonIds.ToArray();
+
+                foreach (CropSeason cropSeason in cropSeasonList)
+                {
+                    item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
+                }
+
+                items.Add(item);
+            }
+
+            ViewBag.Title = "Add Crop";
+            ViewBag.CurDay = 3;
+            ViewBag.CurSeason = 1; // session, hardcode dulu
+
+            return View(items);
+        }
+
+        public async Task<ActionResult> GetCropsBy(string category)
+        {
+            List<Crop> crops = await db.Crops.Where(c => !c.IsDeleted && c.StartYear >= 1).ToListAsync();
+
+            List<CropViewModel> items = new List<CropViewModel>();
+
+            int curSeason = 1; // session, hardcode dulu
+
+            foreach (Crop crop in crops)
+            {
+                var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
+                CropViewModel item = new CropViewModel();
+
+                switch (category)
+                {
+                    case "season":
+                        if (cropSeasonList.Any(cs => cs.SeasonId == curSeason))
+                        {
+                            item.Id = crop.Id;
+                            item.Name = crop.Name;
+                            item.GrowthTime = crop.GrowthTime;
+
+                            foreach (CropSeason cropSeason in cropSeasonList)
+                            {
+                                item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
+                            }
+
+                            items.Add(item);
+                        }
+                        break;
+                    case "ginger":
+                        if (cropSeasonList.Any(cs => cs.SeasonId == 2))
+                        {
+                            item.Id = crop.Id;
+                            item.Name = crop.Name;
+                            item.GrowthTime = crop.GrowthTime;
+
+                            foreach (CropSeason cropSeason in cropSeasonList)
+                            {
+                                item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
+                            }
+
+                            items.Add(item);
+                        }
+                        break;
+                    case "all":
+                        item.Id = crop.Id;
+                        item.Name = crop.Name;
+                        item.GrowthTime = crop.GrowthTime;
+
+                        foreach (CropSeason cropSeason in cropSeasonList)
+                        {
+                            item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
+                        }
+
+                        items.Add(item);
+
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            return Ok(items);
+        }
     }
 }
