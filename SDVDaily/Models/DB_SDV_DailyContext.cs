@@ -21,6 +21,8 @@ namespace SDVDaily.Models
         public virtual DbSet<CropSeason> CropSeasons { get; set; } = null!;
         public virtual DbSet<Event> Events { get; set; } = null!;
         public virtual DbSet<EventDay> EventDays { get; set; } = null!;
+        public virtual DbSet<GrowingCrop> GrowingCrops { get; set; } = null!;
+        public virtual DbSet<SaveFile> SaveFiles { get; set; } = null!;
         public virtual DbSet<Season> Seasons { get; set; } = null!;
         public virtual DbSet<Villager> Villagers { get; set; } = null!;
 
@@ -202,6 +204,81 @@ namespace SDVDaily.Models
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
                     .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<GrowingCrop>(entity =>
+            {
+                entity.ToTable("growing_crop");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Amount).HasColumnName("amount");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.CropId).HasColumnName("cropId");
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("isDeleted")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IsIndoors)
+                    .HasColumnName("isIndoors")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IsOnGinger)
+                    .HasColumnName("isOnGinger")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.NextHarvest).HasColumnName("nextHarvest");
+
+                entity.Property(e => e.SaveId).HasColumnName("saveId");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<SaveFile>(entity =>
+            {
+                entity.ToTable("save_file");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Day).HasColumnName("day");
+
+                entity.Property(e => e.HasFarmAnimals)
+                    .HasColumnName("hasFarmAnimals")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.HasPet)
+                    .HasColumnName("hasPet")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("isDeleted")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+
+                entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.Property(e => e.Year).HasColumnName("year");
             });
 
             modelBuilder.Entity<Season>(entity =>
