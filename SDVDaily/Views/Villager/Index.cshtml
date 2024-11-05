@@ -64,9 +64,11 @@
 
 <script>
     function loadDetail(id) {
+        $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Villager/Detail/" + id);
     }
     function loadEdit(id) {
+        $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Villager/Edit/" + id);
     }
 </script>

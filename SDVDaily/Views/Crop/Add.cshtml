@@ -10,36 +10,79 @@
     <div class="card card-body">
         <form id="frmAddCrop">
             <div class="row align-items-center">
-                <div class="col-2">
-                    <span>Crop</span>
-                </div>
-                <div class="col-10">
-                    <select id="cropSelect" class="form-select" aria-label="Crop select">
-                        <option value="">-- Select crop --</option>
-                        @foreach (CropViewModel crop in Model)
-                        {
-                            if (crop.Seasons.Any(s => s.Id == ViewBag.CurSeason))
+                <div class="col-8">
+                    <div class="fw-lightbold mb-2">Crop</div>
+                    <div class="ps-0">
+                        <select id="cropSelect" class="form-select" aria-label="Crop select">
+                            <option value="">-- Select crop --</option>
+                            @foreach (CropViewModel crop in Model)
                             {
-                                <option value="@crop.Id">@crop.Name</option>
+                                if (crop.Seasons.Any(s => s.Id == ViewBag.CurSeason))
+                                {
+                                    <option value="@crop.Id">@crop.Name</option>
+                                }
                             }
-                        }
-                    </select>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="fw-lightbold mb-2">Amount</div>
+                    <div>
+                        <input type="number" class="form-control" id="amount" min="1">
+                    </div>
                 </div>
             </div>
             <div class="m-3 row">
                 <div class="form-check col-4">
                     <input class="form-check-input" type="checkbox" value="" id="onGingerCheck">
-                    <label class="form-check-label" for="flexCheckDefault">
+                    <label class="form-check-label" for="onGingerCheck">
                         On Ginger Island
                     </label>
                 </div>
                 <div class="form-check col-4">
                     <input class="form-check-input" type="checkbox" value="" id="indoorsCheck">
-                    <label class="form-check-label" for="flexCheckDefault">
+                    <label class="form-check-label" for="indoorsCheck">
                         Indoors
                     </label>
                 </div>
             </div>
+
+            <div class="row my-3">
+                <div class="col-3">
+                    <div class="fw-lightbold mb-2">Profession</div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="agriculturist">
+                        <label class="form-check-label" for="agriculturist">
+                            Agriculturist
+                        </label>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <div class="fw-lightbold mb-2">Fertilizer</div>
+                    <div class="row ms-1">
+                        <div class="form-check col-lg-4">
+                            <input class="form-check-input fertilizerCheck" type="checkbox" value="" id="sgCheck">
+                            <label class="form-check-label" for="sgCheck">
+                                Speed-Gro
+                            </label>
+                        </div>
+                        <div class="form-check col-lg-4">
+                            <input class="form-check-input fertilizerCheck" type="checkbox" value="" id="dsgCheck">
+                            <label class="form-check-label" for="dsgCheck">
+                                Deluxe Speed-Gro
+                            </label>
+                        </div>
+                        <div class="form-check col-lg-4">
+                            <input class="form-check-input fertilizerCheck" type="checkbox" value="" id="hsgCheck">
+                            <label class="form-check-label" for="hsgCheck">
+                                Hyper Speed-Gro
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </form>
     </div>
 </div>
@@ -76,12 +119,11 @@
             dataType: "json",
             beforeSend: () => { },
             success: (response) => {
-                console.log(response)
-                if (response.length > 0) {
+                    if (response.data.length > 0) {
                     $("#cropSelect").empty();
                     $("#cropSelect").append(`<option value="">-- Select crop --</option>`);
                     $.each(
-                        response,
+                        response.data,
                         function (idx, data) {
                             $("#cropSelect").append(
                                 `<option value="${data.id}">${data.name}</option>`
@@ -96,4 +138,16 @@
 
         })
     }
+
+    $('.fertilizerCheck').click((e) => {
+        if ($(e.target).attr('id') != 'sgCheck') {
+            $('#sgCheck').prop("checked", false);
+        }
+        if ($(e.target).attr('id') != 'dsgCheck') {
+            $('#dsgCheck').prop("checked", false);
+        }
+        if ($(e.target).attr('id') != 'hsgCheck') {
+            $('#hsgCheck').prop("checked", false);
+        }
+    })
 </script>

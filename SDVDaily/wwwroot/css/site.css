@@ -16,3 +16,7 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.fw-lightbold {
+    font-weight: 500;
+}

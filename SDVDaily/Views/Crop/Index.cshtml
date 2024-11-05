@@ -151,9 +151,11 @@
 
 <script>
     function loadDetail(id) {
+        $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Crop/Detail/" + id);
     }
     function loadEdit(id) {
+        $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Crop/Edit/" + id);
     }
     function changePage(page) {

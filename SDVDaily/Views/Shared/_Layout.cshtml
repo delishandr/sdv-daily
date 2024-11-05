@@ -38,6 +38,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        let spinner = "<div class='d-flex my-3 justify-content-center'>"
+            + "<div class='spinner-border' role='status'>"
+            + "<span class='visually-hidden'>Loading...</span>"
+            + "</div></div>";
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

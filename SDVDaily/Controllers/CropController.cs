@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
+using System.Net;
 
 namespace SDVDaily.Controllers
 {
@@ -192,11 +193,12 @@ namespace SDVDaily.Controllers
             return View(items);
         }
 
-        public async Task<ActionResult> GetCropsBy(string category)
+        public async Task<ResponseViewModel<List<CropViewModel>>> GetCropsBy(string category)
         {
             List<Crop> crops = await db.Crops.Where(c => !c.IsDeleted && c.StartYear >= 1).ToListAsync();
 
             List<CropViewModel> items = new List<CropViewModel>();
+            ResponseViewModel<List<CropViewModel>> response = new ResponseViewModel<List<CropViewModel>>();
 
             int curSeason = 1; // session, hardcode dulu
 
@@ -253,10 +255,13 @@ namespace SDVDaily.Controllers
                     default:
                         break;
                 }
-
             }
 
-            return Ok(items);
+            response.data = items;
+            response.statusCode = items.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NoContent;
+            response.message = items.Count > 0 ? $"{response.statusCode} - {items.Count} data found" : $"{response.statusCode} - No data found";
+
+            return response;
         }
     }
 }

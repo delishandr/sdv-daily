@@ -59,10 +59,12 @@
 
 <script>
     $(".btn-detail").click((e) => {
+        $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Event/Detail/" + $(e.target).data("id"));
     })
 
     $(".btn-edit").click((e) => {
+        $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Event/Edit/" + $(e.target).data("id"));
     })
 </script>
