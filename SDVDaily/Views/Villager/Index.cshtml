@@ -23,7 +23,7 @@
                 <td><img src="~/@ViewBag.ImageFolder/villagers/@(villager.Id).png" width="70" /></td>
                 <td>@villager.Name</td>
                 <td>@{
-                    switch (villager.Birthday / 28) 
+                    switch (villager.BirthMonth) 
                     {
                         case 0:
                             <span>Spring</span>
@@ -41,7 +41,7 @@
                             break;
                     }    
                 
-                } @(villager.Birthday % 28)</td>
+                } @(villager.BirthDay)</td>
                 <td>
                     <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
                         <button type="button" class="btn btn-warning btn-detail text-white"

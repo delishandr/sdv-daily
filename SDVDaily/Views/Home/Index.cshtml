@@ -2,10 +2,12 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <button type="button" id="add-crop-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticModalLg">Add Crop</button>
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex">
+    @if (ViewBag.Year != null && ViewBag.Day != null)
+    {
+        <div class="h4">@ViewBag.Season @(ViewBag.Day), Year @ViewBag.Year</div>
+        <button type="button" id="add-crop-btn" class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#staticModalLg">Add Crop</button>
+    }
 </div>
 
 <script>

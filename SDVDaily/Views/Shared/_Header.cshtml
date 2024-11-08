@@ -35,7 +35,34 @@
 
                     </li>
                 </ul>
+                @if (Context.Session.GetInt32("userId") == null)
+                {
+                    <div>
+                        <button id="btn-login" class="btn btn-success">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="mx-2">
+                        <div class="text-end">@Context.Session.GetString("saveName")'s Farm</div>
+                    </div>
+                    <div>
+                        <button id="btn-logout" class="btn btn-danger"><i class="fas fa-power-off"></i></button>
+                    </div>
+                }
             </div>
         </div>
     </nav>
 </header>
+
+<script>
+    $("#btn-login").click(() => {
+        location.href = "/Auth/Login";
+    })
+
+    $("#btn-logout").click(() => {
+        location.href = "/Auth/Logout";
+    })
+</script>

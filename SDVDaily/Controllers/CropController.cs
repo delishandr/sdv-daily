@@ -35,13 +35,13 @@ namespace SDVDaily.Controllers
                 item.GrowthTime = crop.GrowthTime;
                 item.RegrowthTime = crop.RegrowthTime;
                 item.Unirrigated = crop.Unirrigated;
-                item.IsWalkable = crop.IsWalkable ?? false;
+                item.IsWalkable = crop.IsWalkable;
                 item.StartYear = crop.StartYear;
                 item.SellPrice = crop.SellPrice;
                 item.Img = crop.Img;
 
                 var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
-                List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+                List<int> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
                 item.SeasonIds = seasonIds.ToArray();
 
                 foreach (CropSeason cropSeason in cropSeasonList)
@@ -91,13 +91,13 @@ namespace SDVDaily.Controllers
             crop.GrowthTime = findCrop.GrowthTime;
             crop.RegrowthTime = findCrop.RegrowthTime;
             crop.Unirrigated = findCrop.Unirrigated;
-            crop.IsWalkable = findCrop.IsWalkable ?? false;
+            crop.IsWalkable = findCrop.IsWalkable;
             crop.StartYear = findCrop.StartYear;
             crop.SellPrice = findCrop.SellPrice;
             crop.Img = findCrop.Img;
 
             var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(findCrop.Id)).ToList();
-            List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+            List<int> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
             crop.SeasonIds = seasonIds.ToArray();
 
             foreach (CropSeason cropSeason in cropSeasonList)
@@ -135,13 +135,13 @@ namespace SDVDaily.Controllers
             crop.GrowthTime = findCrop.GrowthTime;
             crop.RegrowthTime = findCrop.RegrowthTime;
             crop.Unirrigated = findCrop.Unirrigated;
-            crop.IsWalkable = findCrop.IsWalkable ?? false;
+            crop.IsWalkable = findCrop.IsWalkable;
             crop.StartYear = findCrop.StartYear;
             crop.SellPrice = findCrop.SellPrice;
             crop.Img = findCrop.Img;
 
             var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(findCrop.Id)).ToList();
-            List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+            List<int> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
             crop.SeasonIds = seasonIds.ToArray();
 
             foreach (CropSeason cropSeason in cropSeasonList)
@@ -175,7 +175,7 @@ namespace SDVDaily.Controllers
                 item.GrowthTime = crop.GrowthTime;
 
                 var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
-                List<int?> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
+                List<int> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
                 item.SeasonIds = seasonIds.ToArray();
 
                 foreach (CropSeason cropSeason in cropSeasonList)

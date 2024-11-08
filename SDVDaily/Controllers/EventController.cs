@@ -29,27 +29,13 @@ namespace SDVDaily.Controllers
                 item.EndTime = e.EndTime;
                 item.Preparation = e.Preparation;
 
-                var eventDays = db.EventDays.Where(ed => ed.EventId == e.Id).Select(ed => ed.Day).ToList();
+                List<EventDay> eventDays = db.EventDays.Where(ed => ed.EventId == e.Id).ToList();
                 string day = string.Empty;
-                switch ((eventDays[0] - 1) / 28)
-                {
-                    case 0:
-                        day += "Spring ";
-                        break;
-                    case 1:
-                        day += "Summer ";
-                        break;
-                    case 2:
-                        day += "Fall ";
-                        break;
-                    case 3:
-                        day += "Winter ";
-                        break;
-                }
-                day += ((eventDays[0] - 1) % 28 + 1).ToString();
+                day += db.Seasons.Where(s => s.Id == eventDays[0].Season).Select(s => s.Name).First() + " ";
+                day += (eventDays[0].Day).ToString();
                 if (eventDays.Count > 1)
                 {
-                    day += "-" + ((eventDays[eventDays.Count-1] - 1) % 28 + 1).ToString();
+                    day += "-" + (eventDays[eventDays.Count - 1].Day).ToString();
                 }
                 item.Days = day;
 
@@ -83,27 +69,13 @@ namespace SDVDaily.Controllers
             vmEvent.EndTime = mEvent.EndTime;
             vmEvent.Preparation = mEvent.Preparation;
 
-            var eventDays = db.EventDays.Where(ed => ed.EventId == id).Select(ed => ed.Day).ToList();
+            var eventDays = db.EventDays.Where(ed => ed.EventId == id).ToList();
             string day = string.Empty;
-            switch ((eventDays[0] - 1) / 28)
-            {
-                case 0:
-                    day += "Spring ";
-                    break;
-                case 1:
-                    day += "Summer ";
-                    break;
-                case 2:
-                    day += "Fall ";
-                    break;
-                case 3:
-                    day += "Winter ";
-                    break;
-            }
-            day += ((eventDays[0] - 1) % 28 + 1).ToString();
+            day += db.Seasons.Where(s => s.Id == eventDays[0].Season).Select(s => s.Name).First() + " ";
+            day += (eventDays[0].Day).ToString();
             if (eventDays.Count > 1)
             {
-                day += "-" + ((eventDays[eventDays.Count - 1] - 1) % 28 + 1).ToString();
+                day += "-" + (eventDays[eventDays.Count - 1].Day).ToString();
             }
             vmEvent.Days = day;
 
@@ -130,6 +102,7 @@ namespace SDVDaily.Controllers
             vmEvent.StartTime = mEvent.StartTime;
             vmEvent.EndTime = mEvent.EndTime;
             vmEvent.Preparation = mEvent.Preparation;
+            vmEvent.CreatedAt = mEvent.CreatedAt;
 
             ViewBag.Title = "Edit Event";
 

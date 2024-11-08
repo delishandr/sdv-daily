@@ -40,11 +40,11 @@
                     <td>
                         <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
                             <button type="button" class="btn btn-warning btn-detail text-white"
-                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@em.Id">
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetailEvent(@em.Id)">
                                 <i class="fas fa-list-ul"></i>
                             </button>
                             <button type="button" class="btn btn-primary btn-edit"
-                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" data-id="@em.Id">
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEditEvent(@em.Id)">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button type="button" class="btn btn-danger disabled"><i class="fas fa-trash"></i></button>
@@ -58,15 +58,14 @@
 </div>
 
 <script>
-    $(".btn-detail").click((e) => {
+    function loadDetailEvent(id) {
         $("#staticModalLgBody").html(spinner);
-        $("#staticModalLgBody").load("/Event/Detail/" + $(e.target).data("id"));
-    })
-
-    $(".btn-edit").click((e) => {
+        $("#staticModalLgBody").load("/Event/Detail/" + id);
+    }
+    function loadEditEvent(id) {
         $("#staticModalLgBody").html(spinner);
-        $("#staticModalLgBody").load("/Event/Edit/" + $(e.target).data("id"));
-    })
+        $("#staticModalLgBody").load("/Event/Edit/" + id);
+    }
 </script>
 
 <style scoped>

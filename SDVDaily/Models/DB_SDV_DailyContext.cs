@@ -56,11 +56,10 @@ namespace SDVDaily.Models
                     .HasColumnType("text")
                     .HasColumnName("img");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.IsWalkable)
+                    .IsRequired()
                     .HasColumnName("isWalkable")
                     .HasDefaultValueSql("((1))");
 
@@ -95,9 +94,7 @@ namespace SDVDaily.Models
                     .HasColumnName("createdAt")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(20)
@@ -122,9 +119,7 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.CropId).HasColumnName("cropId");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.SeasonId).HasColumnName("seasonId");
 
@@ -149,9 +144,7 @@ namespace SDVDaily.Models
                     .IsUnicode(false)
                     .HasColumnName("endTime");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Location)
                     .HasMaxLength(20)
@@ -197,9 +190,9 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.EventId).HasColumnName("eventId");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.Season).HasColumnName("season");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
@@ -221,17 +214,11 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.CropId).HasColumnName("cropId");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
-                entity.Property(e => e.IsIndoors)
-                    .HasColumnName("isIndoors")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsIndoors).HasColumnName("isIndoors");
 
-                entity.Property(e => e.IsOnGinger)
-                    .HasColumnName("isOnGinger")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsOnGinger).HasColumnName("isOnGinger");
 
                 entity.Property(e => e.NextHarvest).HasColumnName("nextHarvest");
 
@@ -255,22 +242,18 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.Day).HasColumnName("day");
 
-                entity.Property(e => e.HasFarmAnimals)
-                    .HasColumnName("hasFarmAnimals")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.HasFarmAnimals).HasColumnName("hasFarmAnimals");
 
-                entity.Property(e => e.HasPet)
-                    .HasColumnName("hasPet")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.HasPet).HasColumnName("hasPet");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("name");
+
+                entity.Property(e => e.Season).HasColumnName("season");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
@@ -292,9 +275,7 @@ namespace SDVDaily.Models
                     .HasColumnName("createdAt")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(15)
@@ -312,7 +293,9 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Birthday).HasColumnName("birthday");
+                entity.Property(e => e.BirthDay).HasColumnName("birthDay");
+
+                entity.Property(e => e.BirthMonth).HasColumnName("birthMonth");
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
@@ -323,9 +306,7 @@ namespace SDVDaily.Models
                     .HasColumnType("text")
                     .HasColumnName("img");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("isDeleted")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)

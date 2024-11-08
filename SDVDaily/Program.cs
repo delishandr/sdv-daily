@@ -12,6 +12,12 @@ namespace SDVDaily
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Add browser session
+            builder.Services.AddSession(opt =>
+            {
+                opt.IdleTimeout = TimeSpan.FromMinutes(15);
+            });
+
             //SQL Server DB
             builder.Services.AddDbContext<DB_SDV_DailyContext>(options => {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -33,6 +39,8 @@ namespace SDVDaily
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

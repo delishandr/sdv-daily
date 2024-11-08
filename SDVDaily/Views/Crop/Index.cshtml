@@ -78,11 +78,11 @@
                 <td>
                     <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
                             <button type="button" class="btn btn-warning btn-detail text-white"
-									data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetail(@crop.Id)">
+									data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetailCrop(@crop.Id)">
                             <i class="fas fa-list-ul"></i>
                         </button>
                         <button type="button" class="btn btn-primary btn-edit"
-                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEdit(@crop.Id)" disabled>
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEditCrop(@crop.Id)" disabled>
                             <i class="fas fa-edit"></i>
                         </button>
                         <button type="button" class="btn btn-danger" disabled><i class="fas fa-trash"></i></button>
@@ -150,11 +150,11 @@
 </div>
 
 <script>
-    function loadDetail(id) {
+    function loadDetailCrop(id) {
         $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Crop/Detail/" + id);
     }
-    function loadEdit(id) {
+    function loadEditCrop(id) {
         $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Crop/Edit/" + id);
     }
