@@ -13,15 +13,13 @@ namespace SDVDaily.Controllers
         public IActionResult Login()
         {
             int userId = 1; // hardcode
-            SaveFile? saveFile = db.SaveFiles.Where(sf => sf.UserId == userId).ToList()[0];
-
-            HttpContext.Session.SetInt32("userId", userId);
-            HttpContext.Session.SetString("saveName", saveFile?.Name!);
-            HttpContext.Session.SetInt32("saveDay", (int)saveFile?.Day!);
-            HttpContext.Session.SetInt32("saveSeason", (int)saveFile?.Season!);
-            HttpContext.Session.SetInt32("saveYear", (int)saveFile?.Year!);
-            HttpContext.Session.SetInt32("hasPet", saveFile?.HasPet! == true ? 1 : 0);
-            HttpContext.Session.SetInt32("hasFarmAnimals", saveFile?.HasFarmAnimals! == true ? 1 : 0);
+            SaveFile? saveFile = db.SaveFiles.Where(sf => sf.UserId == userId).First();
+            if (saveFile != null)
+            {
+                HttpContext.Session.SetInt32("userId", userId);
+                HttpContext.Session.SetInt32("saveId", userId);
+                HttpContext.Session.SetString("saveName", saveFile?.Name!);
+            }
 
             return RedirectToAction("Index", "Home");
         }

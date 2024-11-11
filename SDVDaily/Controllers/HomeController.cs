@@ -17,11 +17,15 @@ namespace SDVDaily.Controllers
 
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetInt32("userId").HasValue)
+            if (HttpContext.Session.GetInt32("saveId").HasValue)
             {
-                ViewBag.Year = HttpContext.Session.GetInt32("saveYear");
-                ViewBag.Season = db.Seasons.Where(s => s.Id == HttpContext.Session.GetInt32("saveSeason")).Select(s => s.Name).First();
-                ViewBag.Day = (int)HttpContext.Session.GetInt32("saveDay")!;
+                SaveFile file = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+
+                ViewBag.Year = file.Year;
+                ViewBag.Season = db.Seasons.Where(s => s.Id == file.Season).Select(s => s.Name).First();
+                ViewBag.Day = file.Day;
+                ViewBag.HasFarmAnimals = file.HasFarmAnimals;
+                ViewBag.HasPet = file.HasPet;
             }
             return View();
         }
@@ -36,5 +40,34 @@ namespace SDVDaily.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public async Task<IActionResult> NextDay()
+        {
+			if (HttpContext.Session.GetInt32("saveId").HasValue)
+            {
+                SaveFile save = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+
+                if (save.Day == 28)
+                {
+                    if (save.Season == 4)
+                    {
+                        save.Year++;
+                        save.Season = 1;
+                    }
+                    else
+                        save.Season++;
+                    save.Day = 1;
+                }
+                else
+                {
+                    save.Day++;
+                }
+                save.UpdatedAt = DateTime.Now;
+                db.Update(save);
+                await db.SaveChangesAsync();
+			}
+            
+            return RedirectToAction("Index", "Home");
+		}
     }
 }
