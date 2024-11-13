@@ -26,6 +26,17 @@ namespace SDVDaily.Controllers
                 ViewBag.Day = file.Day;
                 ViewBag.HasFarmAnimals = file.HasFarmAnimals;
                 ViewBag.HasPet = file.HasPet;
+
+                List<Crop> crops = new List<Crop>();
+                List<GrowingCrop> harvests = db.GrowingCrops
+                    .Where(g => g.NextHarvest == file.Day && g.NextHarvestSeason == file.Season)
+                    .ToList();
+                foreach (GrowingCrop harvest in harvests)
+                {
+                    Crop crop = db.Crops.Where(c => c.Id == harvest.CropId).Single();
+                    crops.Add(crop);
+                }
+                ViewBag.Harvest = crops.OrderBy(c => c.Name).ToList();
             }
             return View();
         }

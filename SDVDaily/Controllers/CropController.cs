@@ -226,7 +226,21 @@ namespace SDVDaily.Controllers
                 crop.NextHarvest = harvest;
                 crop.NextHarvestSeason = file.Season;
             }
-            db.Add(crop);
+
+            GrowingCrop? extGrown = db.GrowingCrops
+                .Where(g => g.CropId == extCrop.Id && g.NextHarvest == crop.NextHarvest && g.NextHarvestSeason == crop.NextHarvestSeason)
+                .FirstOrDefault();
+
+            if (extGrown == null)
+            {
+                db.Add(crop);
+            }
+            else
+            {
+                extGrown.Amount += addCrop.Amount;
+                extGrown.UpdatedAt = DateTime.Now;
+                db.Update(extGrown);
+            }
             await db.SaveChangesAsync();
 
             response.data = crop;
