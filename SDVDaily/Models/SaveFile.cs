@@ -10,9 +10,9 @@ namespace SDVDaily.Models
         public string Name { get; set; } = null!;
         public bool HasPet { get; set; }
         public bool HasFarmAnimals { get; set; }
-        public int? Day { get; set; }
-        public int? Season { get; set; }
-        public int? Year { get; set; }
+        public int Day { get; set; }
+        public int Season { get; set; }
+        public int Year { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }

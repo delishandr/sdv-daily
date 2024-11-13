@@ -1,7 +1,6 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model List<CropViewModel>
 @{
     Layout = null;
 }
@@ -13,35 +12,26 @@
                 <div class="col-8">
                     <div class="fw-lightbold mb-2">Crop</div>
                     <div class="ps-0">
-                        <select id="cropSelect" name="CropId" class="form-select" aria-label="Crop select">
-                            <option value="">-- Select crop --</option>
-                            @foreach (CropViewModel crop in Model)
-                            {
-                                if (crop.Seasons.Any(s => s.Id == ViewBag.CurSeason))
-                                {
-                                    <option value="@crop.Id">@crop.Name</option>
-                                }
-                            }
-                        </select>
+                        <select id="CropId" name="CropId" class="form-select" aria-label="Crop select"></select>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="fw-lightbold mb-2">Amount</div>
                     <div>
-                        <input type="number" class="form-control" id="amount" name="Amount" min="1">
+                        <input type="number" class="form-control" id="Amount" name="Amount" min="1" value="1">
                     </div>
                 </div>
             </div>
             <div class="m-3 row">
                 <div class="form-check col-4">
-                    <input class="form-check-input" type="checkbox" value="" id="onGingerCheck" name="IsOnGinger">
-                    <label class="form-check-label" for="onGingerCheck">
+                    <input class="form-check-input" type="checkbox" value="true" id="IsOnGinger" name="IsOnGinger">
+                    <label class="form-check-label" for="IsOnGinger">
                         On Ginger Island
                     </label>
                 </div>
                 <div class="form-check col-4">
-                    <input class="form-check-input" type="checkbox" value="" id="indoorsCheck" name="IsIndoors">
-                    <label class="form-check-label" for="indoorsCheck">
+                    <input class="form-check-input" type="checkbox" value="true" id="IsIndoors" name="IsIndoors">
+                    <label class="form-check-label" for="IsIndoors">
                         Indoors
                     </label>
                 </div>
@@ -51,7 +41,7 @@
                 <div class="col-3">
                     <div class="fw-lightbold mb-2">Profession</div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="agriculturist" name="IsAgriculturist">
+                        <input class="form-check-input" type="checkbox" value="true" id="IsAgriculturist" name="IsAgriculturist">
                         <label class="form-check-label" for="agriculturist">
                             Agriculturist
                         </label>
@@ -61,19 +51,19 @@
                     <div class="fw-lightbold mb-2">Fertilizer</div>
                     <div class="row ms-1">
                         <div class="form-check col-lg-4">
-                            <input class="form-check-input fertilizerCheck" type="checkbox" value="" id="sgCheck" name="IsSG">
+                            <input class="form-check-input fertilizerCheck" type="checkbox" value="true" id="IsSG" name="IsSG">
                             <label class="form-check-label" for="sgCheck">
                                 Speed-Gro
                             </label>
                         </div>
                         <div class="form-check col-lg-4">
-                            <input class="form-check-input fertilizerCheck" type="checkbox" value="" id="dsgCheck" name="IsDSG">
+                            <input class="form-check-input fertilizerCheck" type="checkbox" value="true" id="IsDSG" name="IsDSG">
                             <label class="form-check-label" for="dsgCheck">
                                 Deluxe Speed-Gro
                             </label>
                         </div>
                         <div class="form-check col-lg-4">
-                            <input class="form-check-input fertilizerCheck" type="checkbox" value="" id="hsgCheck" name="IsHSG">
+                            <input class="form-check-input fertilizerCheck" type="checkbox" value="true" id="IsHSG" name="IsHSG">
                             <label class="form-check-label" for="hsgCheck">
                                 Hyper Speed-Gro
                             </label>
@@ -85,6 +75,9 @@
 
         </form>
     </div>
+    <div class="my-2 crop-alert">
+
+    </div>
     <div class="d-flex justify-content-end gap-2 mt-3">
         <button class="btn btn-secondary">Cancel</button>
         <button id="btn-add" class="btn btn-primary">Add</button>
@@ -94,9 +87,13 @@
 <script>
     $('#staticModalLgLabel').text("@ViewBag.Title");
 
-    $('#onGingerCheck').click(function(e) {
+    $(document).ready(() => {
+        getCrops('season');
+    })
+
+    $('#IsOnGinger').click(function(e) {
         if ($(this).prop("checked")) {
-            $('#indoorsCheck').prop("checked", false);
+            $('#IsIndoors').prop("checked", false);
             getCrops('ginger');
         }
         else {
@@ -104,9 +101,9 @@
         }
     })
 
-    $('#indoorsCheck').click(function (e) {
+    $('#IsIndoors').click(function (e) {
         if ($(this).prop("checked")) {
-            $('#onGingerCheck').prop("checked", false);
+            $('#IsOnGinger').prop("checked", false);
             getCrops('all');
         }
         else {
@@ -124,12 +121,12 @@
             beforeSend: () => { },
             success: (response) => {
                     if (response.data.length > 0) {
-                    $("#cropSelect").empty();
-                    $("#cropSelect").append(`<option value="">-- Select crop --</option>`);
+                    $("#CropId").empty();
+                    $("#CropId").append(`<option value="">-- Select crop --</option>`);
                     $.each(
                         response.data,
                         function (idx, data) {
-                            $("#cropSelect").append(
+                            $("#CropId").append(
                                 `<option value="${data.id}">${data.name}</option>`
                             );
                         }
@@ -144,14 +141,14 @@
     }
 
     $('.fertilizerCheck').click((e) => {
-        if ($(e.target).attr('id') != 'sgCheck') {
-            $('#sgCheck').prop("checked", false);
+        if ($(e.target).attr('id') != 'IsSG') {
+            $('#IsSG').prop("checked", false);
         }
-        if ($(e.target).attr('id') != 'dsgCheck') {
-            $('#dsgCheck').prop("checked", false);
+        if ($(e.target).attr('id') != 'IsDSG') {
+            $('#IsDSG').prop("checked", false);
         }
-        if ($(e.target).attr('id') != 'hsgCheck') {
-            $('#hsgCheck').prop("checked", false);
+        if ($(e.target).attr('id') != 'IsHSG') {
+            $('#IsHSG').prop("checked", false);
         }
     })
 
@@ -166,13 +163,20 @@
                 data: $("#frmAddCrop").serialize(),
                 dataType: "json",
                 success: (response) => {
-                    if (response.statusCode == 200 || response.statusCode == 201) {
-                        location.reload();
+                    $('.crop-alert').html(alert);
+                    $('#alertText').text(response.message);
+                    if (response.statusCode == 201) {
+                        $('#dismissableAlert').addClass('alert-success');
+                    }
+                    else if (response.statusCode == 200) {
+                        $('#dismissableAlert').addClass('alert-warning');
+                    }
+                    else {
+                        $('#dismissableAlert').addClass('alert-danger');
                     }
                 },
                 error: (errResponse) => {
                     console.error(errResponse);
-                    debugger;
                 }
             });
         }

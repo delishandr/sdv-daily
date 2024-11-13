@@ -162,45 +162,96 @@ namespace SDVDaily.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            // year pake session, sekarang hardcode dulu
-            var cropList = await db.Crops.Where(c => !c.IsDeleted && c.StartYear >= 1).ToListAsync();
-            List<CropViewModel> items = new List<CropViewModel>();
-
-            foreach (Crop crop in cropList)
+            if (!HttpContext.Session.GetInt32("saveId").HasValue)
             {
-                CropViewModel item = new CropViewModel();
-                item.Id = crop.Id;
-                item.Name = crop.Name;
-                item.StartYear = crop.StartYear;
-                item.GrowthTime = crop.GrowthTime;
-
-                var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
-                List<int> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
-                item.SeasonIds = seasonIds.ToArray();
-
-                foreach (CropSeason cropSeason in cropSeasonList)
-                {
-                    item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
-                }
-
-                items.Add(item);
+                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Title = "Add Crop";
-            ViewBag.CurDay = 3;
-            ViewBag.CurSeason = 1; // session, hardcode dulu
 
-            return View(items);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ResponseViewModel<GrowingCrop>> Add(GrowingCropViewModel addCrop)
+        {
+            ResponseViewModel<GrowingCrop> response = new ResponseViewModel<GrowingCrop>();
+            Crop? extCrop = db.Crops.Where(c => c.Id == addCrop.CropId).FirstOrDefault();
+            if (extCrop == null)
+            {
+                return response;
+            }
+
+            if (!HttpContext.Session.GetInt32("saveId").HasValue)
+            {
+                return response;
+            }
+
+            SaveFile file = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+
+            GrowingCrop crop = new GrowingCrop();
+            crop.SaveId = file.Id;
+            crop.CropId = extCrop.Id;
+            crop.Amount = addCrop.Amount;
+            crop.IsOnGinger = addCrop.IsOnGinger;
+            crop.IsIndoors = addCrop.IsIndoors;
+
+            double percent = 100;
+            if (addCrop.IsAgriculturist)
+                percent -= 10;
+
+            if (addCrop.IsSG)
+                percent -= 10;
+            else if (addCrop.IsDSG)
+                percent -= 25;
+            else if (addCrop.IsHSG)
+                percent -= 33;
+
+            int growth = (int)Math.Floor(extCrop.GrowthTime * percent / 100);
+
+            CropSeason? cs = new CropSeason(); 
+
+            int harvest = file.Day + growth;
+            if (harvest > 28)
+            {
+                if (!addCrop.IsIndoors && !addCrop.IsOnGinger)
+                    cs = db.CropSeasons.Where(cs => cs.CropId == extCrop.Id && cs.SeasonId == file.Season + 1).FirstOrDefault();
+
+                crop.NextHarvestSeason = file.Season + 1;
+                crop.NextHarvest = harvest - 28;
+
+            }
+            else
+            {
+                crop.NextHarvest = harvest;
+                crop.NextHarvestSeason = file.Season;
+            }
+            db.Add(crop);
+            await db.SaveChangesAsync();
+
+            response.data = crop;
+            response.statusCode = cs != null ? HttpStatusCode.Created : HttpStatusCode.OK;
+            response.message = cs != null ? "Crop successfully added!" : "Warning: Crop cannot be harvested in time!";
+
+            return response;
         }
 
         public async Task<ResponseViewModel<List<CropViewModel>>> GetCropsBy(string category)
         {
-            List<Crop> crops = await db.Crops.Where(c => !c.IsDeleted && c.StartYear >= 1).ToListAsync();
-
-            List<CropViewModel> items = new List<CropViewModel>();
             ResponseViewModel<List<CropViewModel>> response = new ResponseViewModel<List<CropViewModel>>();
 
-            int curSeason = 1; // session, hardcode dulu
+            if (!HttpContext.Session.GetInt32("saveId").HasValue)
+            {
+                return response;
+            }
+
+            SaveFile file = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+            int? year = file.Year;
+            int? curSeason = file.Season;
+
+            List<Crop> crops = await db.Crops.Where(c => !c.IsDeleted && c.StartYear <= year).ToListAsync();
+
+            List<CropViewModel> items = new List<CropViewModel>();
 
             foreach (Crop crop in crops)
             {
@@ -225,7 +276,7 @@ namespace SDVDaily.Controllers
                         }
                         break;
                     case "ginger":
-                        if (cropSeasonList.Any(cs => cs.SeasonId == 2))
+                        if (cropSeasonList.Any(cs => cs.SeasonId == 2)) // season: summer
                         {
                             item.Id = crop.Id;
                             item.Name = crop.Name;
@@ -256,6 +307,7 @@ namespace SDVDaily.Controllers
                         break;
                 }
             }
+            items = items.OrderBy(c => c.Name).ToList();
 
             response.data = items;
             response.statusCode = items.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NoContent;
