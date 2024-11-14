@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public int SaveId { get; set; }
         public int CropId { get; set; }
+        public string CropName { get; set; }
         public int NextHarvest { get; set; }
         public int NextHarvestSeason { get; set; }
         public int Amount { get; set; }

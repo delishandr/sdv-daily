@@ -228,7 +228,9 @@ namespace SDVDaily.Controllers
             }
 
             GrowingCrop? extGrown = db.GrowingCrops
-                .Where(g => g.CropId == extCrop.Id && g.NextHarvest == crop.NextHarvest && g.NextHarvestSeason == crop.NextHarvestSeason)
+                .Where(g => g.SaveId == file.Id && g.CropId == extCrop.Id
+                    && g.NextHarvest == crop.NextHarvest && g.NextHarvestSeason == crop.NextHarvestSeason 
+                    && g.IsOnGinger == crop.IsOnGinger && g.IsIndoors == crop.IsIndoors)
                 .FirstOrDefault();
 
             if (extGrown == null)

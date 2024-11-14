@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
 using System.Diagnostics;
+using System.Net;
 
 namespace SDVDaily.Controllers
 {
@@ -15,11 +17,11 @@ namespace SDVDaily.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (HttpContext.Session.GetInt32("saveId").HasValue)
             {
-                SaveFile file = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+                SaveFile file = await db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).FirstAsync();
 
                 ViewBag.Year = file.Year;
                 ViewBag.Season = db.Seasons.Where(s => s.Id == file.Season).Select(s => s.Name).First();
@@ -27,16 +29,27 @@ namespace SDVDaily.Controllers
                 ViewBag.HasFarmAnimals = file.HasFarmAnimals;
                 ViewBag.HasPet = file.HasPet;
 
-                List<Crop> crops = new List<Crop>();
+                List<GrowingCropViewModel> vmHarvest = new List<GrowingCropViewModel>();
+
                 List<GrowingCrop> harvests = db.GrowingCrops
                     .Where(g => g.NextHarvest == file.Day && g.NextHarvestSeason == file.Season)
                     .ToList();
                 foreach (GrowingCrop harvest in harvests)
                 {
                     Crop crop = db.Crops.Where(c => c.Id == harvest.CropId).Single();
-                    crops.Add(crop);
+                    GrowingCropViewModel h = new GrowingCropViewModel()
+                    {
+                        Id = harvest.Id,
+                        CropId = crop.Id,
+                        CropName = crop.Name,
+                        Amount = harvest.Amount,
+                        IsOnGinger = harvest.IsOnGinger,
+                        IsIndoors = harvest.IsIndoors
+                    };
+                    vmHarvest.Add(h);
+
                 }
-                ViewBag.Harvest = crops.OrderBy(c => c.Name).ToList();
+                ViewBag.Harvest = vmHarvest.OrderBy(h => h.CropName).ToList();
             }
             return View();
         }
@@ -75,10 +88,75 @@ namespace SDVDaily.Controllers
                 }
                 save.UpdatedAt = DateTime.Now;
                 db.Update(save);
+                
+                // TODO: delete withering crops on season change (day == 1)
+                //      condition: !IsOnGinger && !IsIndoors
+
                 await db.SaveChangesAsync();
 			}
             
             return RedirectToAction("Index", "Home");
 		}
+
+        [HttpPost]
+        public async Task<ResponseViewModel<List<HarvestCheck>>> NextDayHarvest(List<HarvestCheck> harvestChecks)
+        {
+            ResponseViewModel<List<HarvestCheck>> response = new ResponseViewModel<List<HarvestCheck>>();
+            if (HttpContext.Session.GetInt32("saveId").HasValue)
+            {
+                SaveFile save = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).Single();
+
+                foreach (HarvestCheck check in harvestChecks)
+                {
+                    GrowingCrop growingCrop = db.GrowingCrops.Where(g => g.Id == check.GrowingCropId).Single();
+
+                    if (check.IsHarvested)
+                    {
+                        Crop crop = db.Crops.Where(c => c.Id == check.CropId).Single();
+                        if (crop.RegrowthTime != null)
+                        {
+                            growingCrop.UpdatedAt = DateTime.Now;
+                            growingCrop.NextHarvest += (int)crop.RegrowthTime;
+                            if (growingCrop.NextHarvest > 28)
+                            {
+                                growingCrop.NextHarvest -= 28;
+                                if (growingCrop.NextHarvestSeason == 4)
+                                    growingCrop.NextHarvestSeason = 1;
+                                else
+                                    growingCrop.NextHarvestSeason++;
+                            }
+                            db.Update(growingCrop);
+                        }
+                        else
+                        {
+                            db.Remove(growingCrop);
+                        }
+                    }
+                    else
+                    {
+                        if (growingCrop.NextHarvest == 28)
+                        {
+                            growingCrop.NextHarvest = 1;
+                            if (growingCrop.NextHarvestSeason == 4)
+                                growingCrop.NextHarvestSeason = 1;
+                            else
+                                growingCrop.NextHarvestSeason++;
+                        }
+                        else
+                            growingCrop.NextHarvest++;
+                        growingCrop.UpdatedAt = DateTime.Now;
+
+                        db.Update(growingCrop); 
+                    }
+                }
+                await db.SaveChangesAsync();
+
+                response.data = harvestChecks;
+                response.statusCode = HttpStatusCode.OK;
+                response.message = "Crop successfully harvested!";
+            }
+
+            return response;
+        }
     }
 }
