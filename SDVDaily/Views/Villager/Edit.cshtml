@@ -1,0 +1,109 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Villager
+@{
+    Layout = null;
+}
+
+<div>
+    <form action="/Villager/Edit/@Model.Id" method="post">
+        <div class="card">
+            <div class="card-body">
+                <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+                <input type="hidden" id="CreatedAt" name="CreatedAt" value="@Model.CreatedAt" />
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Name</div>
+                    <div class="col-10">
+                        <input class="form-control" type="text" id="Name" name="Name" value="@Model.Name" />
+                    </div>
+                </div>
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Birthday</div>
+                    <div class="col-6">
+                        <select class="form-select" id="BirthMonth" name="BirthMonth">
+                            @foreach (Season season in ViewBag.Seasons)
+                            {
+                                if (Model.BirthMonth == season.Id)
+                                {
+                                    <option value="@season.Id" selected>@season.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@season.Id">@season.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select" id="BirthDay" name="BirthDay">
+                            @for (int i = 1; i <= 28; i++)
+                            {
+                                if (Model.BirthDay == i)
+                                {
+                                    <option value="@i" selected>@i</option>
+                                }
+                                else
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="fw-bold mb-3">Loved Gifts</div>
+                <div class="ck-body-wrapper">
+                    <textarea id="LovedGifts" runat="server" name="LovedGifts" asp-for="LovedGifts">@(Html.Raw(Model.LovedGifts))</textarea>
+                    <script>
+                        ClassicEditor
+                            .create(document.querySelector('#LovedGifts'), {
+                                link: {
+                                    decorators: {
+                                        openInNewTab: {
+                                            mode: 'manual',
+                                            label: 'Open in a new tab',
+                                            defaultValue: false,         // This option will be selected by default.
+                                            attributes: {
+                                                target: '_blank',
+                                                rel: 'noopener noreferrer'
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    </script>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $('#staticModalLgLabel').text("@ViewBag.Title");
+
+    $('#staticModalLg').modal({
+        focus: false
+    });
+</script>
+
+<style scoped>
+    :root {
+        --ck-z-default: 100;
+        --ck-z-panel: calc( var(--ck-z-default) + 999 );
+    }
+
+    .ck-body-wrapper {
+        z-index: 1300 !important;
+    }
+
+    .ck-editor__editable {
+        min-height: 150px;
+    }
+</style>

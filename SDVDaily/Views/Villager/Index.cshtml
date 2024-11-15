@@ -13,6 +13,7 @@
                 <th></th>
                 <th>Name</th>
                 <th>Birthday</th>
+                <th>Loved Gifts</th>
                 <th>Actions</th>
 			</tr>
         </thead>
@@ -25,16 +26,16 @@
                 <td>@{
                     switch (villager.BirthMonth) 
                     {
-                        case 0:
+                        case 1:
                             <span>Spring</span>
                             break;
-                        case 1:
+                        case 2:
                             <span>Summer</span>
                             break;
-                        case 2:
+                        case 3:
                             <span>Fall</span>
                             break;
-                        case 3:
+                        case 4:
                             <span>Winter</span>
                             break;
                         default:
@@ -43,13 +44,23 @@
                 
                 } @(villager.BirthDay)</td>
                 <td>
+                    <div id="lovedGifts-@villager.Id" class="collapse div-gifts mb-1">@(Html.Raw(villager.LovedGifts))</div>
+                    
+					<div class="">
+						<div class="btn btn-secondary btn-sm" type="button"
+								data-bs-toggle="collapse" data-bs-target="#lovedGifts-@villager.Id">
+							Show
+						</div>
+					</div>
+                </td>
+                <td>
                     <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
                         <button type="button" class="btn btn-warning btn-detail text-white"
                                 data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetail(@villager.Id)" disabled>
                             <i class="fas fa-list-ul"></i>
                         </button>
                         <button type="button" class="btn btn-primary btn-edit"
-                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEdit(@villager.Id)" disabled>
+                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEdit(@villager.Id)">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button type="button" class="btn btn-danger" disabled><i class="fas fa-trash"></i></button>
@@ -77,5 +88,15 @@
     table th, table td {
         text-align: center;
         vertical-align: middle;
+        max-width: 100px;
+    }
+
+    ul {
+        display: inline-block;
+        text-align: left;
+    }
+
+    .div-gifts {
+        text-align: start;
     }
 </style>

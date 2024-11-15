@@ -9,12 +9,12 @@ namespace SDVDaily.Controllers
     public class HomeController : Controller
     {
         private DB_SDV_DailyContext db;
-        private readonly ILogger<HomeController> _logger;
+        private readonly string imageFolder;
 
-        public HomeController(ILogger<HomeController> logger, DB_SDV_DailyContext _db)
+        public HomeController(IConfiguration _config, DB_SDV_DailyContext _db)
         {
             db = _db;
-            _logger = logger;
+            imageFolder = _config["ImageFolder"];
         }
 
         public async Task<IActionResult> Index()
@@ -50,6 +50,27 @@ namespace SDVDaily.Controllers
 
                 }
                 ViewBag.Harvest = vmHarvest.OrderBy(h => h.CropName).ToList();
+
+                ViewBag.Birthday = db.Villagers
+                    .Where(v => !v.IsDeleted && v.BirthMonth == file.Season && v.BirthDay == file.Day)
+                    .FirstOrDefault();
+                ViewBag.Event = (
+                    from e in db.Events
+                    join ed in db.EventDays
+                        on e.Id equals ed.EventId
+                    where !e.IsDeleted && ed.Day == file.Day && ed.Season == file.Season
+                    select new Event { 
+                        Id = e.Id,
+                        Name = e.Name,
+                        Type = e.Type,
+                        Location = e.Location,
+                        StartTime = e.StartTime,
+                        EndTime = e.EndTime,
+                        Preparation = e.Preparation
+                    }
+                ).FirstOrDefault();
+
+                ViewBag.ImageFolder = imageFolder;
             }
             return View();
         }

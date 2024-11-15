@@ -64,7 +64,21 @@
                     <textarea id="Preparation" runat="server" name="Preparation" asp-for="Preparation">@(Html.Raw(Model.Preparation))</textarea>
                     <script>
                         ClassicEditor
-                            .create( document.querySelector( '#Preparation' ) )
+                            .create( document.querySelector( '#Preparation' ), {
+                                link: {
+                                    decorators: {
+                                        openInNewTab: {
+                                            mode: 'manual',
+                                            label: 'Open in a new tab',
+                                            defaultValue: true,         // This option will be selected by default.
+                                            attributes: {
+                                                target: '_blank',
+                                                rel: 'noopener noreferrer'
+                                            }
+                                        }
+                                    }
+                                }
+                            } )
                             .catch( error => {
                                 console.error( error );
                             } );

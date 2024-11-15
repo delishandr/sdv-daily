@@ -17,12 +17,59 @@ namespace SDVDaily.Controllers
         
         public async Task<IActionResult> Index()
         {
-            List<Villager> villagers = await db.Villagers.ToListAsync();
+            List<Villager> villagers = await db.Villagers.OrderBy(v => v.Name).ToListAsync();
 
             ViewBag.Title = "Villager List";
             ViewBag.ImageFolder = imageFolder;
 
             return View(villagers);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            Villager? villager = await db.Villagers.FindAsync(id);
+            if (villager == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Title = "Edit Villager";
+            ViewBag.Seasons = db.Seasons.ToList();
+
+            return View(villager);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, [Bind("Id, Name, BirthMonth, BirthDay, LovedGifts, CreatedAt")] Villager villager)
+        {
+            if (id != villager.Id)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    villager.UpdatedAt = DateTime.Now;
+                    db.Update(villager);
+                    await db.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (db.Events.Find(id) == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(villager);
         }
     }
 }

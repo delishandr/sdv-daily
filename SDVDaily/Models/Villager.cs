@@ -9,7 +9,7 @@ namespace SDVDaily.Models
         public string Name { get; set; } = null!;
         public int? BirthDay { get; set; }
         public int? BirthMonth { get; set; }
-        public string? Img { get; set; }
+        public string? LovedGifts { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }

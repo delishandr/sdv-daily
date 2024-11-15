@@ -304,11 +304,11 @@ namespace SDVDaily.Models
                     .HasColumnName("createdAt")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.Img)
-                    .HasColumnType("text")
-                    .HasColumnName("img");
-
                 entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.LovedGifts)
+                    .HasColumnType("text")
+                    .HasColumnName("lovedGifts");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
