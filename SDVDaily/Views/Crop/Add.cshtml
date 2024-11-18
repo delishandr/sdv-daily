@@ -41,7 +41,8 @@
                 <div class="col-3">
                     <div class="fw-lightbold mb-2">Profession</div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="true" id="IsAgriculturist" name="IsAgriculturist">
+                        <input class="form-check-input" type="checkbox" value="true" id="IsAgriculturist" name="IsAgriculturist"
+                            @(ViewBag.IsAgriculturist ? "checked='checked'" : "") disabled>
                         <label class="form-check-label" for="agriculturist">
                             Agriculturist
                         </label>

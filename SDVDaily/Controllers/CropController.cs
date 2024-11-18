@@ -160,13 +160,15 @@ namespace SDVDaily.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Add()
+        public IActionResult Add()
         {
             if (!HttpContext.Session.GetInt32("saveId").HasValue)
             {
                 return RedirectToAction("Index", "Home");
             }
 
+            ViewBag.IsAgriculturist = db.SaveFiles
+                .Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).Single().IsAgriculturist;
             ViewBag.Title = "Add Crop";
 
             return View();

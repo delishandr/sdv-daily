@@ -113,6 +113,22 @@ namespace SDVDaily.Controllers
                 // TODO: delete withering crops on season change (day == 1)
                 //      condition: !IsOnGinger && !IsIndoors
 
+                if (save.Day == 1)
+                {
+                    List<GrowingCrop> growingCrops = db.GrowingCrops
+                        .Where(g => g.SaveId == save.Id && !g.IsOnGinger && !g.IsIndoors)
+                        .ToList();
+
+                    foreach (GrowingCrop growing in growingCrops)
+                    {
+                        CropSeason? season = db.CropSeasons
+                            .Where(cs => cs.CropId == growing.CropId && cs.SeasonId == save.Season).FirstOrDefault();
+
+                        if (season == null)
+                            db.Remove(growing);
+                    }
+                }
+
                 await db.SaveChangesAsync();
 			}
             
@@ -178,6 +194,64 @@ namespace SDVDaily.Controllers
             }
 
             return response;
+        }
+
+        public async Task<IActionResult> ManageFarm()
+        {
+            if (HttpContext.Session.GetInt32("saveId") == null)
+                return RedirectToAction("Index");
+
+            SaveFile save = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+
+            List<GrowingCropViewModel> cropList = await (
+                from g in db.GrowingCrops
+                join c in db.Crops
+                    on g.CropId equals c.Id
+                join s in db.Seasons
+                    on g.NextHarvestSeason equals s.Id
+                where g.SaveId == HttpContext.Session.GetInt32("saveId")
+                select new GrowingCropViewModel
+                {
+                    Id = g.Id,
+                    CropId = g.CropId,
+                    CropName = c.Name,
+                    NextHarvest = g.NextHarvest,
+                    NextHarvestSeason = g.NextHarvestSeason,
+                    NextHarvestSeasonName = s.Name,
+                    Amount = g.Amount,
+                    IsOnGinger = g.IsOnGinger,
+                    IsIndoors = g.IsIndoors
+                }
+            ).OrderBy(g => g.NextHarvestSeason).ThenBy(g => g.NextHarvest).ToListAsync();
+
+            ViewBag.Title = "Manage Farm";
+            ViewBag.ImageFolder = imageFolder;
+
+            ViewBag.SaveId = save.Id;
+            ViewBag.HasPet = save.HasPet;
+            ViewBag.HasFarmAnimals = save.HasFarmAnimals;
+            ViewBag.IsAgriculturist = save.IsAgriculturist;
+
+            return View(cropList);
+        }
+
+        public async Task<IActionResult> UpdateFarm([Bind("Id, HasPet, HasFarmAnimals, IsAgriculturist")] SaveFile file)
+        {
+            SaveFile? extFile = await db.SaveFiles.FindAsync(file.Id);
+
+            if (extFile == null)
+            {
+                return NotFound();
+            }
+
+            extFile.HasPet = file.HasPet;
+            extFile.HasFarmAnimals = file.HasFarmAnimals;
+            extFile.IsAgriculturist = file.IsAgriculturist;
+            extFile.UpdatedAt = DateTime.Now;
+            db.Update(extFile);
+            await db.SaveChangesAsync();
+
+            return RedirectToAction("ManageFarm");
         }
     }
 }

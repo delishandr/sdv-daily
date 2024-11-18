@@ -248,6 +248,8 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.HasPet).HasColumnName("hasPet");
 
+                entity.Property(e => e.IsAgriculturist).HasColumnName("isAgriculturist");
+
                 entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Name)

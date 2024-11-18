@@ -8,6 +8,7 @@
         public string CropName { get; set; }
         public int NextHarvest { get; set; }
         public int NextHarvestSeason { get; set; }
+        public string NextHarvestSeasonName { get; set; }
         public int Amount { get; set; }
         public bool IsOnGinger { get; set; }
         public bool IsIndoors { get; set; }

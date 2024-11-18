@@ -13,7 +13,7 @@ namespace SDVDaily.Controllers
         public IActionResult Login()
         {
             int userId = 1; // hardcode
-            SaveFile? saveFile = db.SaveFiles.Where(sf => sf.UserId == userId).First();
+            SaveFile? saveFile = db.SaveFiles.Where(sf => sf.UserId == userId).FirstOrDefault();
             if (saveFile != null)
             {
                 HttpContext.Session.SetInt32("userId", userId);
