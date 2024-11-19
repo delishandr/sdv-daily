@@ -23,6 +23,8 @@
 <body>
     <partial name="_Header" />
 
+    <partial name="_Alert" />
+
     <partial name="_Modal" />
 
     <div class="container">
@@ -43,10 +45,10 @@
             + "<span class='visually-hidden'>Loading...</span>"
             + "</div></div>";
 
-        let alert = "<div id='dismissableAlert' class='alert alert-dismissible fade show' role='alert'>"
-            + "<span id='alertText'>You should check in on some of those fields below.</span>"
-            + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>"
-            + "</div>";
+        // let alert = "<div id='dismissableAlert' class='alert alert-dismissible fade show' role='alert'>"
+        //     + "<span id='alertText'>You should check in on some of those fields below.</span>"
+        //     + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>"
+        //     + "</div>";
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

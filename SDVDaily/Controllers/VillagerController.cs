@@ -54,11 +54,14 @@ namespace SDVDaily.Controllers
                     villager.UpdatedAt = DateTime.Now;
                     db.Update(villager);
                     await db.SaveChangesAsync();
+
+                    HttpContext.Session.SetString("infoMsg", "Villager updated!");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (db.Events.Find(id) == null)
                     {
+                        HttpContext.Session.SetString("errMsg", "Error: ID not found!");
                         return NotFound();
                     }
                     else

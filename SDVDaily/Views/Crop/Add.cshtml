@@ -76,9 +76,6 @@
 
         </form>
     </div>
-    <div class="my-2 crop-alert">
-
-    </div>
     <div class="d-flex justify-content-end gap-2 mt-3">
         <button class="btn btn-secondary">Cancel</button>
         <button id="btn-add" class="btn btn-primary">Add</button>
@@ -164,16 +161,15 @@
                 data: $("#frmAddCrop").serialize(),
                 dataType: "json",
                 success: (response) => {
-                    $('.crop-alert').html(alert);
                     $('#alertText').text(response.message);
                     if (response.statusCode == 201) {
-                        $('#dismissableAlert').addClass('alert-success');
+                        alert(response.message, 'info');
                     }
                     else if (response.statusCode == 200) {
-                        $('#dismissableAlert').addClass('alert-warning');
+                        alert(response.message, 'warning');
                     }
                     else {
-                        $('#dismissableAlert').addClass('alert-danger');
+                        alert(response.message, 'danger');
                     }
                 },
                 error: (errResponse) => {

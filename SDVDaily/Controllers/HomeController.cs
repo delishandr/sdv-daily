@@ -251,6 +251,8 @@ namespace SDVDaily.Controllers
             db.Update(extFile);
             await db.SaveChangesAsync();
 
+            HttpContext.Session.SetString("infoMsg", "Farm updated!");
+
             return RedirectToAction("ManageFarm");
         }
     }

@@ -123,11 +123,14 @@ namespace SDVDaily.Controllers
                     mEvent.UpdatedAt = DateTime.Now;
                     db.Update(mEvent);
                     await db.SaveChangesAsync();
+
+                    HttpContext.Session.SetString("infoMsg", "Event updated!");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (db.Events.Find(id) == null)
                     {
+                        HttpContext.Session.SetString("errMsg", "Error: ID not found!");
                         return NotFound();
                     }
                     else

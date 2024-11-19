@@ -249,7 +249,7 @@ namespace SDVDaily.Controllers
 
             response.data = crop;
             response.statusCode = cs != null ? HttpStatusCode.Created : HttpStatusCode.OK;
-            response.message = cs != null ? "Crop successfully added!" : "Warning: Crop cannot be harvested in time!";
+            response.message = cs != null ? "Crop added!" : "Warning: Crop might not be harvewtable in time!";
 
             return response;
         }
