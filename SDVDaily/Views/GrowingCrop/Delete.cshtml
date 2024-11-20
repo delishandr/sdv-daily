@@ -1,0 +1,74 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model GrowingCropViewModel
+@{
+    Layout = null;
+}
+
+<div class="card">
+	<form action="/GrowingCrop/Delete" method="post">
+		<div class="card-body my-2">
+			<div class="mb-3">Delete @(Model.CropName)?</div>
+			<div class="row px-3">
+				<div class="col-10">
+						<div class="input-group">
+							<button id="btn-dec" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus" disabled></i></button>
+							<input type="number" id="Amount" name="Amount" class="form-control" min="0" max="@Model.Amount" value="0">
+							<button id="btn-add" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+						</div>
+						<input type="hidden" id="Id" name="Id" value="@Model.Id" />
+				</div>
+				<div class="col-2 d-flex justify-content-end">
+					<button type="button" id="btn-rmvall" class="btn btn-danger">All</button>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer d-flex justify-content-end">
+			<button type="submit" class="btn btn-danger">Remove</button>
+		</div>
+	</form>
+</div>
+
+
+<script>
+    $('#staticModalLabel').text("@ViewBag.Title");
+
+	$('#btn-dec').click(() => {
+		$('#btn-add').prop('disabled', false);
+		let oldVal = parseInt($('#Amount').val());
+
+		if (oldVal > @Model.Amount) {
+			$('#Amount').val(@Model.Amount);
+			$('#btn-add').prop('disabled', true);
+		}
+		else if (oldVal > 1) {
+			$('#Amount').val(oldVal - 1);
+		}
+		else {
+			$('#Amount').val(0);
+			$('#btn-dec').prop('disabled', true);
+		}
+		
+	})
+	$('#btn-add').click(() => {
+		$('#btn-dec').prop('disabled', false);
+		let oldVal = parseInt($('#Amount').val());
+		if (oldVal < 0) {
+			$('#Amount').val(0);
+			$('#btn-dec').prop('disabled', true);
+		}
+		else if (oldVal < @Model.Amount - 1) {
+			$('#Amount').val(oldVal + 1);
+		}
+		else {
+			$('#Amount').val(@Model.Amount);
+			$('#btn-add').prop('disabled', true);
+		}
+	})
+	$('#btn-rmvall').click(() => {
+		$('#Amount').val(@Model.Amount);
+		$('#btn-dec').prop('disabled', false);
+		$('#btn-add').prop('disabled', true);
+	})
+</script>

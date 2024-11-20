@@ -76,7 +76,10 @@
                         <td>@crop.NextHarvestSeasonName @crop.NextHarvest</td>
                         <td>@crop.Amount</td>
                         <td>
-                            <button type="button" class="btn btn-danger" disabled><i class="fas fa-trash"></i></button>
+                            <button type="button" class="btn btn-danger"
+                                    data-bs-toggle="modal" data-bs-target="#staticModal" onclick="loadDeleteGrowing(@crop.Id)">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 }
@@ -88,6 +91,11 @@
 
 <script>
     $('#btn-reset').click(() => { $('#frmFarm')[0].reset() })
+
+    function loadDeleteGrowing(id) {
+        $("#staticModalBody").html(spinner);
+        $("#staticModalBody").load("/GrowingCrop/Delete/" + id);
+    }
 </script>
 
 <style scoped>

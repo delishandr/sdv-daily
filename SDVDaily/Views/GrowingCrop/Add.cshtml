@@ -156,7 +156,7 @@
         e.preventDefault();
         if ($("#frmAddCrop").valid()) {
             $.ajax({
-                url: "/Crop/Add",
+                url: "/GrowingCrop/Add",
                 type: "post",
                 data: $("#frmAddCrop").serialize(),
                 dataType: "json",
