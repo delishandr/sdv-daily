@@ -110,9 +110,6 @@ namespace SDVDaily.Controllers
                 save.UpdatedAt = DateTime.Now;
                 db.Update(save);
                 
-                // TODO: delete withering crops on season change (day == 1)
-                //      condition: !IsOnGinger && !IsIndoors
-
                 if (save.Day == 1)
                 {
                     List<GrowingCrop> growingCrops = db.GrowingCrops

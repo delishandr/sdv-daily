@@ -1,0 +1,91 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+
+<div>
+    <form action="/SaveFile/New" method="post">
+        <div class="card">
+            <div class="card-body">
+				<div class="mb-3">
+                    <div class="fw-lightbold mb-2">Player Name</div>
+                    <input class="form-control" type="text" id="Name" name="Name" />
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="ExistingFarm">
+                    <label class="form-check-label" for="ExistingFarm">
+                        Existing Farm
+                    </label>
+                </div>
+                <div class="my-3 row">
+                    <div class="col-3">
+                        <div class="fw-lightbold mb-2">Day</div>
+                        <select class="form-select" id="Day" name="Day" value="1" disabled>
+                            @for (int i = 1; i <= 28; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-5">
+                        <div class="fw-lightbold mb-2">Season</div>
+                        <select class="form-select" id="Season" name="Season" value="1" disabled>
+                            @foreach (Season season in ViewBag.Seasons)
+                            {
+                                <option value="@season.Id">@season.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-lightbold mb-2">Year</div>
+                        <input class="form-control" type="number" id="Year" name="Year" min="1" value="1" disabled />
+                    </div>
+                </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" value="true" id="HasPet" name="HasPet" disabled>
+                    <label class="form-check-label" for="HasPet">
+                        Has Pet
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="HasFarmAnimals" name="HasFarmAnimals" disabled>
+                    <label class="form-check-label" for="HasFarmAnimals">
+                        Has Farm Animals
+                    </label>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <button type="submit" class="btn btn-success">Create</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $('#staticModalLabel').text("@ViewBag.Title");
+
+    $('#ExistingFarm').click(function (e) {
+        if ($(this).prop("checked")) {
+            $('#Day').prop('disabled', false);
+            $('#Season').prop('disabled', false);
+            $('#Year').prop('disabled', false);
+            $('#HasPet').prop('disabled', false);
+            $('#HasFarmAnimals').prop('disabled', false);
+        }
+        else {
+            $('#Day').prop('disabled', true);
+            $('#Season').prop('disabled', true);
+            $('#Year').prop('disabled', true);
+            $('#HasPet').prop('disabled', true);
+            $('#HasFarmAnimals').prop('disabled', true);
+
+            $('#Day').val(1);
+            $('#Season').val(1);
+            $('#Year').val(1);
+            $('#HasPet').prop('checked', false);
+            $('#HasFarmAnimals').prop('checked', false);
+        }
+    })
+</script>

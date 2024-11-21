@@ -113,6 +113,14 @@
         <button id="btn-next" class="btn btn-secondary" onclick="nextDay(@ViewBag.Harvest.Count)">Next Day<i class="fas fa-arrow-right ms-2"></i></button>
     </div>
 }
+else if (Context.Session.GetInt32("userId").HasValue)
+{
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card w-50">
+            <div class="card-body"></div>
+        </div>
+    </div>
+}
 
 <script>
     $(".btn-primary").click((e) => {
