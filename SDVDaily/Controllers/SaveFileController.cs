@@ -37,8 +37,7 @@ namespace SDVDaily.Controllers
 
                 await db.SaveChangesAsync();
 
-                HttpContext.Session.SetInt32("saveId", saveFile.Id);
-                HttpContext.Session.SetString("saveName", saveFile.Name);
+                return await Change(saveFile.Id);
             }
 
             return RedirectToAction("Index", "Home");
@@ -70,13 +69,20 @@ namespace SDVDaily.Controllers
         }
 
         [HttpPost]
-        public IActionResult Change(int SaveId)
+        public async Task<IActionResult> Change(int SaveId)
         {
             SaveFile? file = db.SaveFiles.Find(SaveId);
             if (file == null)
             {
                 return NotFound();
             }
+
+            User user = db.Users.Where(u => u.Id == HttpContext.Session.GetInt32("userId")).Single();
+            user.LastSave = SaveId;
+            db.Update(user);
+
+            await db.SaveChangesAsync();
+
             HttpContext.Session.SetInt32("saveId", SaveId);
 			HttpContext.Session.SetString("saveName", file.Name);
 

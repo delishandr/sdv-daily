@@ -24,6 +24,7 @@ namespace SDVDaily.Models
         public virtual DbSet<GrowingCrop> GrowingCrops { get; set; } = null!;
         public virtual DbSet<SaveFile> SaveFiles { get; set; } = null!;
         public virtual DbSet<Season> Seasons { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<Villager> Villagers { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -289,6 +290,49 @@ namespace SDVDaily.Models
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
                     .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("user");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.LastLogin)
+                    .HasColumnType("datetime")
+                    .HasColumnName("lastLogin");
+
+                entity.Property(e => e.LastSave).HasColumnName("lastSave");
+
+                entity.Property(e => e.LoginAttempt).HasColumnName("loginAttempt");
+
+                entity.Property(e => e.Password)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("password");
+
+                entity.Property(e => e.RoleId).HasColumnName("roleId");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+
+                entity.Property(e => e.Username)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("username");
             });
 
             modelBuilder.Entity<Villager>(entity =>

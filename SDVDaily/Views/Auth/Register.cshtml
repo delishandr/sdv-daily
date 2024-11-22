@@ -1,0 +1,78 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+
+<div class="card">
+	<form id="frmRegister">
+		<div class="card-body">
+			<div class="mb-3">
+				<div class="fw-lightbold mb-2">Username</div>
+				<input class="form-control" type="text" id="Username" name="Username" required />
+			</div>
+			<div class="mb-3">
+				<div class="fw-lightbold mb-2">Email</div>
+				<input class="form-control" type="email" id="Email" name="Email" required />
+			</div>
+			<div class="mb-3">
+				<div class="fw-lightbold mb-2">Password</div>
+				<input class="form-control" type="password" id="Password" name="Password" required />
+			</div>
+			<div class="mt-3 d-grid gap-2">
+				<button class="btn btn-primary">Register</button>
+				<hr />
+				<div class="small text-center">Already have an account?</div>
+				<button class="btn-login btn btn-outline-primary">Login</button>
+			</div>
+		</div>
+	</form>
+    
+</div>
+
+<script>
+    $('#staticModalLabel').text("@ViewBag.Title");
+
+    $('.btn-login').click(() => {
+        $("#staticModalBody").load("/Auth/Login");
+    })
+
+	$("#btn-primary").click((e) => $("#frmRegister").submit());
+
+    $("#frmRegister").submit(function (e) {
+        e.preventDefault();
+            if ($("#frmRegister").valid()) {
+            $.ajax({
+                url: "/Auth/Register",
+                type: "post",
+                data: $("#frmRegister").serialize(),
+                dataType: "json",
+                success: (response) => {
+                    $('#alertText').text(response.message);
+                    if (response.statusCode == 201) {
+                        alert(response.message, 'info');
+                        $('#staticModal').modal('hide');
+                    }
+                    else {
+                        alert(response.message, 'danger');
+                    }
+                },
+                error: (errResponse) => {
+                    console.error(errResponse);
+                }
+            });
+        }
+        else {
+            console.error("Data is not valid!");
+        }
+    })
+
+	$('#frmRegister').validate({
+        rules: {
+            Username: "required",
+            Email: "required",
+			Password: "required"
+        }
+    })
+</script>

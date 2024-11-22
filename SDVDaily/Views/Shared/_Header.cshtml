@@ -38,7 +38,7 @@
                 @if (Context.Session.GetInt32("userId") == null)
                 {
                     <div>
-                        <button id="btn-login" class="btn btn-success">
+                        <button id="btn-login" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticModal">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </button>
                     </div>
@@ -78,7 +78,8 @@
 
 <script>
     $("#btn-login").click(() => {
-        location.href = "/Auth/Login";
+        $("#staticModalBody").html(spinner);
+        $("#staticModalBody").load("/Auth/Login");
     })
 
     $("#btn-logout").click(() => {
