@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
 
 namespace SDVDaily.Controllers
@@ -25,6 +26,12 @@ namespace SDVDaily.Controllers
         {
             if (HttpContext.Session.GetInt32("userId") != null)
             {
+                if (saveFile.Day == 0)
+                {
+                    saveFile.Day = 1;
+                    saveFile.Season = 1;
+                    saveFile.Year = 1;
+                }
                 saveFile.UserId = (int)HttpContext.Session.GetInt32("userId")!;
                 db.Add(saveFile);
 
@@ -35,6 +42,47 @@ namespace SDVDaily.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Change()
+        {
+            List<SaveFile> saves = await db.SaveFiles.Where(s => s.UserId == HttpContext.Session.GetInt32("userId")).ToListAsync();
+            List<SaveFileViewModel> vmSaves = new List<SaveFileViewModel>();
+
+            foreach (SaveFile save in saves)
+            {
+                SaveFileViewModel vmSave = new SaveFileViewModel()
+                {
+                    Id = save.Id,
+                    Name = save.Name,
+                    Day = save.Day,
+                    Season = save.Season,
+                    SeasonName = db.Seasons.Where(s => s.Id == save.Season).Single().Name,
+                    Year = save.Year
+                };
+                vmSaves.Add(vmSave);
+            }
+
+            ViewBag.Title = "Change Farm";
+
+            return View(vmSaves);
+        }
+
+        [HttpPost]
+        public IActionResult Change(int SaveId)
+        {
+            SaveFile? file = db.SaveFiles.Find(SaveId);
+            if (file == null)
+            {
+                return NotFound();
+            }
+            HttpContext.Session.SetInt32("saveId", SaveId);
+			HttpContext.Session.SetString("saveName", file.Name);
+
+            HttpContext.Session.SetString("infoMsg", "Farm changed successfully!");
+
+			return RedirectToAction("Index", "Home");
         }
     }
 }

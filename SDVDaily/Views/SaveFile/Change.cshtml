@@ -1,0 +1,40 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<SaveFileViewModel>
+@{
+    Layout = null;
+}
+
+<form action="/SaveFile/Change" method="post">
+	<div class="card">
+		<div class="card-body">
+			<div class="">
+				<div class="fw-lightbold mb-2">Choose Farm</div>
+				<select class="form-select" id="SaveId" name="SaveId">
+					@foreach (SaveFileViewModel save in Model)
+					{
+						if (save.Id == Context.Session.GetInt32("saveId"))
+						{
+							<option value="@save.Id" selected>@save.Name - @save.SeasonName @save.Day, Year @save.Year</option>
+						}
+						else
+						{
+							<option value="@save.Id">@save.Name - @save.SeasonName @save.Day, Year @save.Year</option>
+						}
+					}
+				</select>
+			</div>
+		</div>
+		<div class="card-footer d-flex justify-content-end">
+			<button type="submit" class="btn btn-success">Select</button>
+		</div>
+	</div>
+</form>
+
+
+<script>
+    $('#staticModalLabel').text("@ViewBag.Title");
+</script>
+
+

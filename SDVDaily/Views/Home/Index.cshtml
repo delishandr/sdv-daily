@@ -116,8 +116,19 @@
 else if (Context.Session.GetInt32("userId").HasValue)
 {
     <div class="d-flex justify-content-center mt-5">
-        <div class="card w-50">
-            <div class="card-body"></div>
+        <div class="card w-50 mt-5">
+            <div class="card-body">
+				<div class="py-4 px-3">
+					<h3>You haven't created a farm yet!</h3>
+					<div class="d-grid mt-4">
+						<button class="add-farm btn btn-outline-secondary align-center" data-bs-toggle="modal" data-bs-target="#staticModal">
+							<i class="fas fa-plus-circle me-2"></i>Create New Farm
+						</button>
+					</div>
+				</div>
+                
+                
+            </div>
         </div>
     </div>
 }
@@ -126,6 +137,11 @@ else if (Context.Session.GetInt32("userId").HasValue)
     $(".btn-primary").click((e) => {
         $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/GrowingCrop/Add");
+    })
+
+    $(".add-farm").click((e) => {
+        $("#staticModalBody").html(spinner);
+        $("#staticModalBody").load("/SaveFile/New");
     })
 
     function nextDay(count) {
