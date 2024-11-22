@@ -55,6 +55,12 @@
                         Has Farm Animals
                     </label>
                 </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="IsAgriculturist" name="IsAgriculturist" disabled>
+                    <label class="form-check-label" for="IsAgriculturist">
+                        Agriculturist
+                    </label>
+                </div>
             </div>
             <div class="card-footer d-flex justify-content-end">
                 <button type="submit" class="btn btn-success">Create</button>
@@ -73,6 +79,7 @@
             $('#Year').prop('disabled', false);
             $('#HasPet').prop('disabled', false);
             $('#HasFarmAnimals').prop('disabled', false);
+            $('#IsAgriculturist').prop('disabled', false);
         }
         else {
             $('#Day').prop('disabled', true);
@@ -80,12 +87,14 @@
             $('#Year').prop('disabled', true);
             $('#HasPet').prop('disabled', true);
             $('#HasFarmAnimals').prop('disabled', true);
+            $('#IsAgriculturist').prop('disabled', true);
 
             $('#Day').val(1);
             $('#Season').val(1);
             $('#Year').val(1);
             $('#HasPet').prop('checked', false);
             $('#HasFarmAnimals').prop('checked', false);
+            $('#IsAgriculturist').prop('checked', false);
         }
     })
 </script>

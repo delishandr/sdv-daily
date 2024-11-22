@@ -21,9 +21,18 @@ namespace SDVDaily.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New(SaveFile saveFile)
+        public async Task<IActionResult> New([Bind("Name, Day, Season, Year, HasPet, HasFarmAnimals, IsAgriculturist")]  SaveFile saveFile)
         {
+            if (HttpContext.Session.GetInt32("userId") != null)
+            {
+                saveFile.UserId = (int)HttpContext.Session.GetInt32("userId")!;
+                db.Add(saveFile);
 
+                await db.SaveChangesAsync();
+
+                HttpContext.Session.SetInt32("saveId", saveFile.Id);
+                HttpContext.Session.SetString("saveName", saveFile.Name);
+            }
 
             return RedirectToAction("Index", "Home");
         }
