@@ -19,7 +19,18 @@ namespace SDVDaily.Controllers
         }
         public async Task<IActionResult> Index(int page = 1)
         {
-            var cropList = await db.Crops.ToListAsync();
+            // Method-based syntax
+            var query = db.Crops.Where(c => !c.IsDeleted);
+
+            // Query syntax
+            var query1 = from c in db.Crops where !c.IsDeleted select c;
+
+            // Raw SQL syntax
+            var query2 = db.Crops
+                .FromSqlRaw("select * from crop where isDeleted = 0");
+
+            List<Crop> cropList = await query.ToListAsync();
+
             List<CropViewModel> items = new List<CropViewModel>();
 
             foreach (Crop crop in cropList)
@@ -29,7 +40,8 @@ namespace SDVDaily.Controllers
                 item.Name = crop.Name;
 
                 item.CategoryId = crop.CategoryId;
-                var category = db.CropCategories.Where(cc => cc.Id.Equals(crop.CategoryId)).FirstOrDefault();
+                var category = db.CropCategories
+                    .Where(cc => cc.Id.Equals(crop.CategoryId)).FirstOrDefault();
                 item.CategoryName = (category != null ? category.Name : "");
 
                 item.GrowthTime = crop.GrowthTime;
@@ -40,13 +52,15 @@ namespace SDVDaily.Controllers
                 item.SellPrice = crop.SellPrice;
                 item.Img = crop.Img;
 
-                var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
+                var cropSeasonList = db.CropSeasons
+                    .Where(c => c.CropId.Equals(crop.Id)).ToList();
                 List<int> seasonIds = cropSeasonList.Select(c => c.SeasonId).ToList();
                 item.SeasonIds = seasonIds.ToArray();
 
                 foreach (CropSeason cropSeason in cropSeasonList)
                 {
-                    item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
+                    item.Seasons.Add(db.Seasons
+                        .Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
                 }
 
                 item.CreatedAt = crop.CreatedAt;
@@ -74,7 +88,20 @@ namespace SDVDaily.Controllers
 
         public async Task<IActionResult> Detail(int id)
             {
-            Crop? findCrop = await db.Crops.FindAsync(id);
+
+            // Method-based syntax
+            var query = db.Crops
+                .Where(c => !c.IsDeleted && c.Id == id);
+
+            // Query syntax
+            var query1 = from c in db.Crops where !c.IsDeleted && c.Id == id select c;
+
+            // Raw SQL syntax
+            var query2 = db.Crops
+                .FromSqlRaw($"select * from crop where isDeleted = 0 and id = {id}");
+
+            Crop? findCrop = await query.FirstOrDefaultAsync();
+
             if (findCrop == null)
             {
                 return NotFound();
@@ -159,6 +186,41 @@ namespace SDVDaily.Controllers
             return View(crop);
         }
 
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            ViewBag.Id = id;
+            ViewBag.Title = "Delete Crop";
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ResponseViewModel<Crop>> Delete(Crop crop)
+        {
+            ResponseViewModel<Crop> response = new ResponseViewModel<Crop>();
+
+            Crop? extCrop = db.Crops.Find(crop.Id);
+            if (extCrop == null)
+            {
+                response.statusCode = HttpStatusCode.BadRequest;
+                response.message = "ID not found!";
+            }
+            else
+            {
+                extCrop.IsDeleted = true;
+                extCrop.UpdatedAt = DateTime.Now;
+                db.Update(extCrop);
+
+                await db.SaveChangesAsync();
+
+                response.statusCode = HttpStatusCode.OK;
+                response.message = "Crop deleted!";
+            }
+
+            return response;
+        }
+
         public async Task<ResponseViewModel<List<CropViewModel>>> GetCropsBy(string category)
         {
             ResponseViewModel<List<CropViewModel>> response = new ResponseViewModel<List<CropViewModel>>();
@@ -171,65 +233,43 @@ namespace SDVDaily.Controllers
             SaveFile file = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
             int? year = file.Year;
             int? curSeason = file.Season;
-
-            List<Crop> crops = await db.Crops.Where(c => !c.IsDeleted && c.StartYear <= year).ToListAsync();
-
+    
             List<CropViewModel> items = new List<CropViewModel>();
 
-            foreach (Crop crop in crops)
+            if (category == "all")
             {
-                var cropSeasonList = db.CropSeasons.Where(c => c.CropId.Equals(crop.Id)).ToList();
-                CropViewModel item = new CropViewModel();
-
-                switch (category)
-                {
-                    case "season":
-                        if (cropSeasonList.Any(cs => cs.SeasonId == curSeason))
-                        {
-                            item.Id = crop.Id;
-                            item.Name = crop.Name;
-                            item.GrowthTime = crop.GrowthTime;
-
-                            foreach (CropSeason cropSeason in cropSeasonList)
-                            {
-                                item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
-                            }
-
-                            items.Add(item);
-                        }
-                        break;
-                    case "ginger":
-                        if (cropSeasonList.Any(cs => cs.SeasonId == 2)) // season: summer
-                        {
-                            item.Id = crop.Id;
-                            item.Name = crop.Name;
-                            item.GrowthTime = crop.GrowthTime;
-
-                            foreach (CropSeason cropSeason in cropSeasonList)
-                            {
-                                item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
-                            }
-
-                            items.Add(item);
-                        }
-                        break;
-                    case "all":
-                        item.Id = crop.Id;
-                        item.Name = crop.Name;
-                        item.GrowthTime = crop.GrowthTime;
-
-                        foreach (CropSeason cropSeason in cropSeasonList)
-                        {
-                            item.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
-                        }
-
-                        items.Add(item);
-
-                        break;
-                    default:
-                        break;
-                }
+                items = await (
+                    from c in db.Crops
+                    where !c.IsDeleted
+                    select new CropViewModel
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }
+                ).ToListAsync();
             }
+            else
+            {
+                items = await (
+                    from c in db.Crops
+                    join cs in db.CropSeasons
+                        on c.Id equals cs.CropId
+                    where !c.IsDeleted &&
+                        (category == "season" ?
+                            cs.SeasonId == curSeason :
+                        category == "ginger" ?
+                            cs.SeasonId == 2 :
+
+                            c.Id == 0
+                        )
+                    select new CropViewModel
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }
+                ).ToListAsync();
+            }
+
             items = items.OrderBy(c => c.Name).ToList();
 
             response.data = items;

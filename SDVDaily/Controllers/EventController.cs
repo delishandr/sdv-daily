@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
+using System.Net;
 using System.Security.Cryptography;
 
 namespace SDVDaily.Controllers
@@ -15,7 +16,7 @@ namespace SDVDaily.Controllers
         }
         public IActionResult Index()
         {
-            var eventList = db.Events.ToList();
+            var eventList = db.Events.Where(e => !e.IsDeleted).ToList();
             IList<EventViewModel> items = new List<EventViewModel>();
 
             foreach (Event e in eventList)
@@ -142,6 +143,42 @@ namespace SDVDaily.Controllers
             }
 
             return View(mEvent);
+        }
+
+        [HttpGet] 
+        public IActionResult Delete(int id)
+        {
+            ViewBag.Id = id;
+            ViewBag.Title = "Delete Event";
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ResponseViewModel<Event>> Delete(Event mEvent)
+        {
+            ResponseViewModel<Event> response = new ResponseViewModel<Event>();
+
+            Event? extEvent = db.Events.Find(mEvent.Id);
+            if (extEvent == null)
+            {
+                response.statusCode = HttpStatusCode.BadRequest;
+                response.message = "ID not found!";
+            }
+            else
+            {
+                extEvent.IsDeleted = true;
+                extEvent.UpdatedAt = DateTime.Now;
+                db.Update(extEvent);
+
+                await db.SaveChangesAsync();
+
+                response.statusCode = HttpStatusCode.OK;
+                response.message = "Event deleted!";
+            }
+            
+
+            return response;
         }
     }
 }

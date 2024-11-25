@@ -56,14 +56,17 @@
                 <td>
                     <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
                         <button type="button" class="btn btn-warning btn-detail text-white"
-                                data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetail(@villager.Id)" disabled>
+                                data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadDetailVillager(@villager.Id)" disabled>
                             <i class="fas fa-list-ul"></i>
                         </button>
                         <button type="button" class="btn btn-primary btn-edit"
-                                    data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEdit(@villager.Id)">
+                                data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEditVillager(@villager.Id)">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-danger" disabled><i class="fas fa-trash"></i></button>
+                        <button type="button" class="btn btn-danger"
+                                data-bs-toggle="modal" data-bs-target="#staticModal" onclick="loadDeleteVillager(@villager.Id)">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -74,13 +77,17 @@
 </div>
 
 <script>
-    function loadDetail(id) {
+    function loadDetailVillager(id) {
         $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Villager/Detail/" + id);
     }
-    function loadEdit(id) {
+    function loadEditVillager(id) {
         $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Villager/Edit/" + id);
+    }
+    function loadDeleteVillager(id) {
+        $("#staticModalBody").html(spinner);
+        $("#staticModalBody").load("/Villager/Delete/" + id);
     }
 </script>
 

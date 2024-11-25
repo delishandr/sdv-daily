@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
+using System.Net;
 
 namespace SDVDaily.Controllers
 {
@@ -17,7 +18,7 @@ namespace SDVDaily.Controllers
         
         public async Task<IActionResult> Index()
         {
-            List<Villager> villagers = await db.Villagers.OrderBy(v => v.Name).ToListAsync();
+            List<Villager> villagers = await db.Villagers.Where(v => !v.IsDeleted).OrderBy(v => v.Name).ToListAsync();
 
             ViewBag.Title = "Villager List";
             ViewBag.ImageFolder = imageFolder;
@@ -73,6 +74,41 @@ namespace SDVDaily.Controllers
             }
 
             return View(villager);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            ViewBag.Id = id;
+            ViewBag.Title = "Delete Villager";
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ResponseViewModel<Villager>> Delete(Villager villager)
+        {
+            ResponseViewModel<Villager> response = new ResponseViewModel<Villager>();
+
+            Villager? extVillager = db.Villagers.Find(villager.Id);
+            if (extVillager == null)
+            {
+                response.statusCode = HttpStatusCode.BadRequest;
+                response.message = "ID not found!";
+            }
+            else
+            {
+                extVillager.IsDeleted = true;
+                extVillager.UpdatedAt = DateTime.Now;
+                db.Update(extVillager);
+
+                await db.SaveChangesAsync();
+
+                response.statusCode = HttpStatusCode.OK;
+                response.message = "Villager deleted!";
+            }
+
+            return response;
         }
     }
 }

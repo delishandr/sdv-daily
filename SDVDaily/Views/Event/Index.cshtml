@@ -47,7 +47,10 @@
                                     data-bs-toggle="modal" data-bs-target="#staticModalLg" onclick="loadEditEvent(@em.Id)">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button type="button" class="btn btn-danger disabled"><i class="fas fa-trash"></i></button>
+                            <button type="button" class="btn btn-danger"
+                                    data-bs-toggle="modal" data-bs-target="#staticModal" onclick="loadDeleteEvent(@em.Id)">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -65,6 +68,10 @@
     function loadEditEvent(id) {
         $("#staticModalLgBody").html(spinner);
         $("#staticModalLgBody").load("/Event/Edit/" + id);
+    }
+    function loadDeleteEvent(id) {
+        $("#staticModalBody").html(spinner);
+        $("#staticModalBody").load("/Event/Delete/" + id);
     }
 </script>
 
