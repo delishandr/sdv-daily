@@ -45,7 +45,14 @@ namespace SDVDaily.Controllers
                     }
                     extUser.LoginAttempt++;
                     extUser.UpdatedAt = DateTime.Now;
+
+                    // ORM syntax
                     db.Update(extUser);
+
+                    // Raw SQL syntax
+                    //db.Database.ExecuteSqlInterpolated(
+                    //    $"update user set loginAttempt = {extUser.LoginAttempt}, updatedAt = {DateTime.Now.ToString()} where id = {extUser.Id}"
+                    //);
                 }
                 else
                 {
@@ -69,7 +76,13 @@ namespace SDVDaily.Controllers
                         HttpContext.Session.SetInt32("saveId", saveFile.Id);
                         HttpContext.Session.SetString("saveName", saveFile.Name);
                     }
+                    // ORM syntax
                     db.Update(extUser);
+
+                    // Raw SQL syntax
+                    //db.Database.ExecuteSqlInterpolated(
+                    //    $"update user set lastLogin = {DateTime.Now.ToString()}, updatedAt = {DateTime.Now.ToString()}, lastSave = {extUser.LastSave} where id = {extUser.Id}"
+                    //);
 
                     response.statusCode = HttpStatusCode.OK;
                     response.message = $"Login successful!";
@@ -103,8 +116,15 @@ namespace SDVDaily.Controllers
 				user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
 				user.RoleId = 2;
+
+                // ORM syntax
                 db.Add(user);
                 await db.SaveChangesAsync();
+
+                // Raw SQL syntax
+                //db.Database.ExecuteSqlInterpolated(
+                //    $"insert into user (username, email, password, roleId) values ({user.Username}, {user.Email}, {user.Password}, {user.RoleId})"    
+                //);
 
                 response.data = user;
                 response.statusCode = HttpStatusCode.Created;

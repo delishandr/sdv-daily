@@ -18,7 +18,17 @@ namespace SDVDaily.Controllers
         
         public async Task<IActionResult> Index()
         {
-            List<Villager> villagers = await db.Villagers.Where(v => !v.IsDeleted).OrderBy(v => v.Name).ToListAsync();
+            // Method-based syntax
+            var query = db.Villagers.Where(v => !v.IsDeleted).OrderBy(v => v.Name);
+
+            // Query syntax
+            var query1 = from v in db.Villagers where !v.IsDeleted orderby v.Name select v;
+
+            // Raw SQL syntax
+            var query2 = db.Villagers
+                .FromSqlRaw("select * from villager where isDeleted = 0 order by name");
+
+            List<Villager> villagers = await query.ToListAsync();
 
             ViewBag.Title = "Villager List";
             ViewBag.ImageFolder = imageFolder;
@@ -52,7 +62,15 @@ namespace SDVDaily.Controllers
             {
                 try
                 {
-                    villager.UpdatedAt = DateTime.Now;
+                    DateTime updateTime = DateTime.Now;
+
+                    // Raw SQL syntax
+                    //var rows = db.Database
+                    //    .ExecuteSqlInterpolated(
+                    //        $"update villager set name = {villager.Name}, birthMonth = {villager.BirthMonth}, birthDay = {villager.BirthDay}, lovedGifts = {villager.LovedGifts}, updatedAt = {updateTime.ToString()} where id = {id}");
+
+                    // Method-based syntax
+                    villager.UpdatedAt = updateTime;
                     db.Update(villager);
                     await db.SaveChangesAsync();
 
@@ -70,7 +88,7 @@ namespace SDVDaily.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
 
             return View(villager);
@@ -98,6 +116,14 @@ namespace SDVDaily.Controllers
             }
             else
             {
+                DateTime updateTime = DateTime.Now;
+
+                // Raw SQL method
+                //var rows = db.Database
+                //    .ExecuteSqlInterpolated(
+                //        $"update villager set isDeleted = 1, updatedAt = {updateTime.ToString()} where id = {villager.Id}");
+
+                // Method-based syntax
                 extVillager.IsDeleted = true;
                 extVillager.UpdatedAt = DateTime.Now;
                 db.Update(extVillager);

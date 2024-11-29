@@ -83,14 +83,14 @@
                                 <img class="cropImg" src="~/@ViewBag.ImageFolder/crops/@(Model.Id).png" width="25" />
                                 <img class="qualityImg" src="~/@ViewBag.ImageFolder/icons/Silver_Quality.png" width="12" />
                             </div>
-                            <div class="ms-2">@(Model.SellPrice / 4 * 5)g</div>
+                            <div class="ms-2">@(Math.Floor((double)Model.SellPrice / 4 * 5))g</div>
                         </div>
                         <div class="d-flex align-items-center mb-2">
                             <div class="parentImg">
                                 <img class="cropImg" src="~/@ViewBag.ImageFolder/crops/@(Model.Id).png" width="25" />
                                 <img class="qualityImg" src="~/@ViewBag.ImageFolder/icons/Gold_Quality.png" width="12" />
                             </div>
-                            <div class="ms-2">@(Model.SellPrice / 2 * 3)g</div>
+                            <div class="ms-2">@(Math.Floor((double)Model.SellPrice / 2 * 3))g</div>
                         </div>
                         <div class="d-flex align-items-center">
                             <div class="parentImg">

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
 using System.Net;
 
@@ -93,13 +94,27 @@ namespace SDVDaily.Controllers
 
             if (extGrown == null)
             {
+                // ORM Syntax
                 db.Add(crop);
+
+                // Raw SQL syntax
+                //db.Database
+                //    .ExecuteSqlInterpolated(
+                //        $"insert into growing_crop (saveId, cropId, nextHarvest, nextHarvestSeason, amount, isOnGinger, isIndoors) values ({crop.SaveId}, {crop.CropId}, {crop.NextHarvest}, {crop.NextHarvestSeason}, {crop.Amount}, {crop.IsOnGinger}, {crop.IsIndoors})"
+                //    );
             }
             else
             {
+                // ORM syntax
                 extGrown.Amount += addCrop.Amount;
                 extGrown.UpdatedAt = DateTime.Now;
                 db.Update(extGrown);
+
+                // Raw SQL syntax
+                //db.Database
+                //    .ExecuteSqlInterpolated(
+                //        $"update growing_crop set amount = {extGrown.Amount}, updatedAt = {DateTime.Now.ToString()} where id = {extGrown.Id}"
+                //    );
             }
             await db.SaveChangesAsync();
 
@@ -149,12 +164,26 @@ namespace SDVDaily.Controllers
             {
                 if (crop.Amount == extCrop.Amount)
                 {
+                    // Raw SQL syntax
+                    //db.Database.ExecuteSqlInterpolated(
+                    //    $"delete from growing_crop where id = {crop.Id}"    
+                    //);
+
+                    // ORM syntax
                     db.Remove(extCrop);
                 }
                 else
                 {
+                    DateTime updatedAt = DateTime.Now;
+
+                    // Raw SQL syntax
+                    //db.Database.ExecuteSqlInterpolated(
+                    //    $"update growing_crop set amount = {extCrop.Amount - crop.Amount}, updatedAt = {updatedAt.ToString()} where id = {crop.Id}"    
+                    //);
+
+                    // ORM syntax
                     extCrop.Amount -= crop.Amount;
-                    extCrop.UpdatedAt = DateTime.Now;
+                    extCrop.UpdatedAt = updatedAt;
                     db.Update(extCrop);
                 }
                 await db.SaveChangesAsync();

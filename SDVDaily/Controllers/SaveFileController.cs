@@ -33,9 +33,15 @@ namespace SDVDaily.Controllers
                     saveFile.Year = 1;
                 }
                 saveFile.UserId = (int)HttpContext.Session.GetInt32("userId")!;
-                db.Add(saveFile);
 
+                // ORM syntax
+                db.Add(saveFile);
                 await db.SaveChangesAsync();
+
+                // Raw SQL syntax
+                //db.Database.ExecuteSqlInterpolated(
+                //    $"insert into save_file (name, day, season, year, hasPet, hasFarmAnimals, isAgriculturist) values ({saveFile.Name}, {saveFile.Day}, {saveFile.Season}, {saveFile.Year}, {saveFile.HasPet}, {saveFile.HasFarmAnimals}, {saveFile.IsAgriculturist})"    
+                //);
 
                 return await Change(saveFile.Id);
             }
@@ -77,9 +83,15 @@ namespace SDVDaily.Controllers
                 return NotFound();
             }
 
+            // ORM Method
             User user = db.Users.Where(u => u.Id == HttpContext.Session.GetInt32("userId")).Single();
             user.LastSave = SaveId;
             db.Update(user);
+
+            // Raw SQL method
+            //db.Database.ExecuteSqlInterpolated(
+            //    $"update user set lastSave = {SaveId} where id = {HttpContext.Session.GetInt32("userId")}"    
+            //);
 
             await db.SaveChangesAsync();
 

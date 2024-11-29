@@ -70,7 +70,7 @@ namespace SDVDaily.Controllers
                 items.Add(item);
             }
 
-            int startIdx = (page - 1) * 10;
+            int startIdx = (page - 1) * pageSize;
 
             ViewBag.TotalItems = items.Count;
             ViewBag.Page = page;
@@ -110,9 +110,10 @@ namespace SDVDaily.Controllers
             CropViewModel crop = new CropViewModel();
             crop.Id = findCrop.Id;
             crop.Name = findCrop.Name;
-
             crop.CategoryId = findCrop.CategoryId;
-            var category = db.CropCategories.Where(cc => cc.Id.Equals(findCrop.CategoryId)).FirstOrDefault();
+            var category = db.CropCategories
+                .Where(cc => cc.Id.Equals(findCrop.CategoryId))
+                .FirstOrDefault();
             crop.CategoryName = (category != null ? category.Name : "");
 
             crop.GrowthTime = findCrop.GrowthTime;
@@ -208,8 +209,15 @@ namespace SDVDaily.Controllers
             }
             else
             {
+                // Raw SQL 
+                DateTime updateTime = DateTime.Now;
+                //var rows = db.Database
+                //    .ExecuteSqlInterpolated(
+                //        $"update crop set isDeleted = 1, updatedAt = {updateTime.ToString()} where id = {crop.Id}");
+
+                // Method-based syntax
                 extCrop.IsDeleted = true;
-                extCrop.UpdatedAt = DateTime.Now;
+                extCrop.UpdatedAt = updateTime;
                 db.Update(extCrop);
 
                 await db.SaveChangesAsync();
@@ -221,9 +229,9 @@ namespace SDVDaily.Controllers
             return response;
         }
 
-        public async Task<ResponseViewModel<List<CropViewModel>>> GetCropsBy(string category)
+        public async Task<ResponseViewModel<List<Crop>>> GetCropsBy(string category)
         {
-            ResponseViewModel<List<CropViewModel>> response = new ResponseViewModel<List<CropViewModel>>();
+            ResponseViewModel<List<Crop>> response = new ResponseViewModel<List<Crop>>();
 
             if (!HttpContext.Session.GetInt32("saveId").HasValue)
             {
@@ -234,27 +242,35 @@ namespace SDVDaily.Controllers
             int? year = file.Year;
             int? curSeason = file.Season;
     
-            List<CropViewModel> items = new List<CropViewModel>();
+            List<Crop> items = new List<Crop>();
+            List<Crop> items2 = new List<Crop>();
 
             if (category == "all")
             {
+                // Query syntax
                 items = await (
-                    from c in db.Crops
-                    where !c.IsDeleted
-                    select new CropViewModel
+                    from c in db.Crops 
+                    where !c.IsDeleted && c.StartYear <= year
+                    select new Crop
                     {
                         Id = c.Id,
                         Name = c.Name
                     }
                 ).ToListAsync();
+
+                // Raw SQL syntax
+                items2 = await db.Crops
+                    .FromSqlRaw($"select * from crop where isDeleted = 0 and startYear <= {year}")
+                    .ToListAsync();
             }
             else
             {
+                // Query syntax
                 items = await (
                     from c in db.Crops
                     join cs in db.CropSeasons
                         on c.Id equals cs.CropId
-                    where !c.IsDeleted &&
+                    where !c.IsDeleted && c.StartYear <= year &&
                         (category == "season" ?
                             cs.SeasonId == curSeason :
                         category == "ginger" ?
@@ -262,12 +278,25 @@ namespace SDVDaily.Controllers
 
                             c.Id == 0
                         )
-                    select new CropViewModel
+                    select new Crop
                     {
                         Id = c.Id,
                         Name = c.Name
                     }
                 ).ToListAsync();
+
+                // Raw SQL syntax
+                string query = $"select c.* from crop as c " +
+                    $"inner join crop_season as cs on c.id = cs.cropId" +
+                    $" where c.isDeleted = 0 and c.startYear <= {year}";
+                if (category == "season")
+                    query += $" and cs.seasonId = {curSeason}";
+                else if (category == "ginger")
+                    query += " and cs.seasonId = 2";
+                else
+                    query += " and c.Id = 0";
+
+                items2 = await db.Crops.FromSqlRaw(query).ToListAsync();
             }
 
             items = items.OrderBy(c => c.Name).ToList();

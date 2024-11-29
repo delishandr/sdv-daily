@@ -14,12 +14,23 @@ namespace SDVDaily.Controllers
         {
             db = _db;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var eventList = db.Events.Where(e => !e.IsDeleted).ToList();
-            IList<EventViewModel> items = new List<EventViewModel>();
+            // Method-based syntax
+            var query = db.Events.Where(e => !e.IsDeleted);
 
-            foreach (Event e in eventList)
+            // Query syntax
+            var query1 = from e in db.Events where !e.IsDeleted select e;
+
+            // Raw SQL syntax
+            var query2 = db.Events
+                .FromSqlRaw("select * from event where isDeleted = 0");
+
+            List<Event> events = await query.ToListAsync();
+
+            List<EventViewModel> items = new List<EventViewModel>();
+
+            foreach (Event e in events)
             {
                 EventViewModel item = new EventViewModel();
                 item.Id = e.Id;
@@ -52,9 +63,21 @@ namespace SDVDaily.Controllers
         }
 
         [HttpGet]
-        public IActionResult Detail(int id)
+        public async Task<IActionResult> Detail(int id)
         {
-            var mEvent = db.Events.Find(id);
+            // Method-based syntax
+            var query = db.Events
+                .Where(e => !e.IsDeleted && e.Id == id);
+
+            // Query syntax
+            var query1 = from e in db.Events where !e.IsDeleted && e.Id == id select e;
+
+            // Raw SQL syntax
+            var query2 = db.Events
+                .FromSqlRaw($"select * from event where isDeleted = 0 and id = {id}");
+
+            Event? mEvent = await query.FirstOrDefaultAsync();
+
             if (mEvent == null)
             {
                 return NotFound();
@@ -94,20 +117,9 @@ namespace SDVDaily.Controllers
                 return NotFound();
             }
 
-            EventViewModel vmEvent = new EventViewModel();
-
-            vmEvent.Id = mEvent.Id;
-            vmEvent.Name = mEvent.Name;
-            vmEvent.Type = mEvent.Type;
-            vmEvent.Location = mEvent.Location;
-            vmEvent.StartTime = mEvent.StartTime;
-            vmEvent.EndTime = mEvent.EndTime;
-            vmEvent.Preparation = mEvent.Preparation;
-            vmEvent.CreatedAt = mEvent.CreatedAt;
-
             ViewBag.Title = "Edit Event";
 
-            return View(vmEvent);
+            return View(mEvent);
         }
 
         [HttpPost]
@@ -121,7 +133,16 @@ namespace SDVDaily.Controllers
             {
                 try
                 {
-                    mEvent.UpdatedAt = DateTime.Now;
+                    DateTime updateTime = DateTime.Now;
+
+                    // Raw SQL syntax
+                    //var rows = db.Database
+                    //    .ExecuteSqlInterpolated(
+                    //        $"update event set name = {mEvent.Name}, type = {mEvent.Type}, location = {mEvent.Location}, startTime = {mEvent.StartTime}, endTime = {mEvent.EndTime}, preparation = {mEvent.Preparation}, updatedAt = {updateTime.ToString()} where id = {id}");
+
+
+                    // Method-based syntax
+                    mEvent.UpdatedAt = updateTime;
                     db.Update(mEvent);
                     await db.SaveChangesAsync();
 
@@ -167,6 +188,14 @@ namespace SDVDaily.Controllers
             }
             else
             {
+                DateTime updateTime = DateTime.Now;
+
+                // Raw SQL syntax
+                //var rows = db.Database
+                //    .ExecuteSqlInterpolated(
+                //        $"update event set isDeleted = 1, updatedAt = {updateTime.ToString()} where id = {mEvent.Id}");
+
+                // Method-based syntax
                 extEvent.IsDeleted = true;
                 extEvent.UpdatedAt = DateTime.Now;
                 db.Update(extEvent);

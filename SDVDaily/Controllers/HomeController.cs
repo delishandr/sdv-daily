@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SDVDaily.Models;
+using System;
 using System.Diagnostics;
 using System.Net;
 
@@ -21,7 +22,21 @@ namespace SDVDaily.Controllers
         {
             if (HttpContext.Session.GetInt32("saveId").HasValue)
             {
-                SaveFile file = await db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).FirstAsync();
+                // Method-based syntax
+                SaveFile file = await db.SaveFiles
+                    .Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).FirstAsync();
+
+                // Query syntax
+                SaveFile file1 = await (
+                    from s in db.SaveFiles
+                    where s.Id == HttpContext.Session.GetInt32("saveId")
+                    select s
+                ).FirstAsync();
+
+                // Raw SQL syntax
+                SaveFile file2 = await db.SaveFiles.FromSqlInterpolated(
+                    $"select * from save_file where id = {HttpContext.Session.GetInt32("saveId")}"    
+                ).FirstAsync();
 
                 ViewBag.Year = file.Year;
                 ViewBag.Season = db.Seasons.Where(s => s.Id == file.Season).Select(s => s.Name).First();
@@ -29,11 +44,27 @@ namespace SDVDaily.Controllers
                 ViewBag.HasFarmAnimals = file.HasFarmAnimals;
                 ViewBag.HasPet = file.HasPet;
 
-                List<GrowingCropViewModel> vmHarvest = new List<GrowingCropViewModel>();
+                // Method-based syntax
+                var query = db.GrowingCrops
+                    .Where(g => g.SaveId == file.Id && g.NextHarvest == file.Day && g.NextHarvestSeason == file.Season);
 
-                List<GrowingCrop> harvests = db.GrowingCrops
-                    .Where(g => g.NextHarvest == file.Day && g.NextHarvestSeason == file.Season)
-                    .ToList();
+                // Query syntax
+                var query1 =
+                    from g in db.GrowingCrops
+                    where g.SaveId == file.Id
+                    && g.NextHarvest == file.Day
+                    && g.NextHarvestSeason == file.Season
+                    select g;
+
+                // Raw SQL syntax
+                var query2 = db.GrowingCrops.FromSqlInterpolated(
+                    $"select * from growing_crop where saveId = {file.Id} and nextHarvest = {file.Day} and nextHarvestSeason = {file.Season}"    
+                );
+
+                List<GrowingCrop> harvests = await query.ToListAsync();
+
+                List<GrowingCropViewModel> vmHarvest = new List<GrowingCropViewModel>();
+                
                 foreach (GrowingCrop harvest in harvests)
                 {
                     Crop crop = db.Crops.Where(c => c.Id == harvest.CropId).Single();
@@ -51,9 +82,17 @@ namespace SDVDaily.Controllers
                 }
                 ViewBag.Harvest = vmHarvest.OrderBy(h => h.CropName).ToList();
 
+                // ORM syntax
                 ViewBag.Birthday = db.Villagers
                     .Where(v => !v.IsDeleted && v.BirthMonth == file.Season && v.BirthDay == file.Day)
                     .FirstOrDefault();
+
+                // Raw SQL syntax
+                Villager? curBirthday = db.Villagers.FromSqlInterpolated(
+                    $"select * from villager where isDeleted = 0 and birthMonth = {file.Season} and birthDay = {file.Day}"
+                ).FirstOrDefault();
+
+                // ORM syntax
                 ViewBag.Event = (
                     from e in db.Events
                     join ed in db.EventDays
@@ -68,6 +107,11 @@ namespace SDVDaily.Controllers
                         EndTime = e.EndTime,
                         Preparation = e.Preparation
                     }
+                ).FirstOrDefault();
+
+                // Raw SQL syntax
+                Event? curEvent = db.Events.FromSqlInterpolated(
+                    $"select e.* from event as e join event_day as ed on e.id = ed.eventId where e.isDeleted = 0 and ed.day = {file.Day} and ed.season = {file.Season}"
                 ).FirstOrDefault();
 
                 ViewBag.ImageFolder = imageFolder;
@@ -107,8 +151,16 @@ namespace SDVDaily.Controllers
                 {
                     save.Day++;
                 }
-                save.UpdatedAt = DateTime.Now;
+                DateTime updateTime = DateTime.Now;
+
+                // ORM syntax
+                save.UpdatedAt = updateTime;
                 db.Update(save);
+
+                // Raw SQL syntax
+                //db.Database.ExecuteSqlInterpolated(
+                //    $"update save_file set year = {save.Year}, season = {save.Season}, day = {save.Day}, updatedAt = {updateTime.ToString()} where id = {save.Id}"    
+                //);
                 
                 if (save.Day == 1)
                 {
@@ -122,7 +174,16 @@ namespace SDVDaily.Controllers
                             .Where(cs => cs.CropId == growing.CropId && cs.SeasonId == save.Season).FirstOrDefault();
 
                         if (season == null)
+                        {
+                            // ORM syntax
                             db.Remove(growing);
+
+                            // Raw SQL syntax
+                            //db.Database.ExecuteSqlInterpolated(
+                            //    $"delete from growing_crop where id = {growing.Id}"
+                            //);
+
+                        }
                     }
                 }
 
@@ -142,6 +203,7 @@ namespace SDVDaily.Controllers
 
                 foreach (HarvestCheck check in harvestChecks)
                 {
+                    DateTime updateTime = DateTime.Now;
                     GrowingCrop growingCrop = db.GrowingCrops.Where(g => g.Id == check.GrowingCropId).Single();
 
                     if (check.IsHarvested)
@@ -149,7 +211,8 @@ namespace SDVDaily.Controllers
                         Crop crop = db.Crops.Where(c => c.Id == check.CropId).Single();
                         if (crop.RegrowthTime != null)
                         {
-                            growingCrop.UpdatedAt = DateTime.Now;
+
+                            growingCrop.UpdatedAt = updateTime;
                             growingCrop.NextHarvest += (int)crop.RegrowthTime;
                             if (growingCrop.NextHarvest > 28)
                             {
@@ -159,11 +222,24 @@ namespace SDVDaily.Controllers
                                 else
                                     growingCrop.NextHarvestSeason++;
                             }
+
+                            // ORM syntax
                             db.Update(growingCrop);
+
+                            // Raw SQL syntax
+                            //db.Database.ExecuteSqlInterpolated(
+                            //    $"update growing_crop set nextHarvest = {growingCrop.NextHarvest}, nextHarvestSeason = {growingCrop.NextHarvestSeason}, updatedAt = {updateTime.ToString()} where id = {growingCrop.Id}"    
+                            //);
                         }
                         else
                         {
+                            // ORM syntax
                             db.Remove(growingCrop);
+
+                            // Raw SQL syntax
+                            //db.Database.ExecuteSqlInterpolated(
+                            //    $"delete from growing_crop where id = {growingCrop.Id}"
+                            //);
                         }
                     }
                     else
@@ -178,9 +254,15 @@ namespace SDVDaily.Controllers
                         }
                         else
                             growingCrop.NextHarvest++;
-                        growingCrop.UpdatedAt = DateTime.Now;
+                        growingCrop.UpdatedAt = updateTime;
 
-                        db.Update(growingCrop); 
+                        // ORM syntax
+                        db.Update(growingCrop);
+
+                        // Raw SQL syntax
+                        //db.Database.ExecuteSqlInterpolated(
+                        //    $"update growing_crop set nextHarvest = {growingCrop.NextHarvest}, nextHarvestSeason = {growingCrop.NextHarvestSeason}, updatedAt = {updateTime.ToString()} where id = {growingCrop.Id}"
+                        //);
                     }
                 }
                 await db.SaveChangesAsync();
@@ -241,12 +323,20 @@ namespace SDVDaily.Controllers
                 return NotFound();
             }
 
+            DateTime updateTime = DateTime.Now;
+
+            // ORM syntax
             extFile.HasPet = file.HasPet;
             extFile.HasFarmAnimals = file.HasFarmAnimals;
             extFile.IsAgriculturist = file.IsAgriculturist;
-            extFile.UpdatedAt = DateTime.Now;
+            extFile.UpdatedAt = updateTime;
             db.Update(extFile);
             await db.SaveChangesAsync();
+
+            // Raw SQL syntax
+            //db.Database.ExecuteSqlInterpolated(
+            //    $"update save_file set hasPet = {file.HasPet}, hasFarmAnimals = {file.HasFarmAnimals}, isAgriculturist = {file.IsAgriculturist}, updatedAt = {updateTime} where id = {file.Id}"
+            //);
 
             HttpContext.Session.SetString("infoMsg", "Farm updated!");
 
