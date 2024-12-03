@@ -11,8 +11,13 @@
 		public string? CategoryName { get; set; }
 
 		public int GrowthTime { get; set; }
+
 		public int? RegrowthTime { get; set; }
+		public bool IsRegrowing { get; set; }
+
 		public int? Unirrigated { get; set; }
+		public bool IsUnirrigated { get; set; }
+
 		public bool IsWalkable { get; set; }
 		public int StartYear { get; set; }
 		public int? SellPrice { get; set; }

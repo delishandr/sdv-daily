@@ -12,7 +12,7 @@
                 <div class="col-8">
                     <div class="fw-lightbold mb-2">Crop</div>
                     <div class="ps-0">
-                        <select id="CropId" name="CropId" class="form-select" aria-label="Crop select"></select>
+                        <select id="CropId" name="CropId" class="form-select" aria-label="Crop select" onchange="changeCrop()"></select>
                     </div>
                 </div>
                 <div class="col-4">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
             </div>
-
+            <div id="harvest-time" class="my-1"></div>
         </form>
     </div>
     <div class="d-flex justify-content-end gap-2 mt-3">
@@ -90,8 +90,9 @@
     })
 
     $('#IsOnGinger').click(function(e) {
+        $("#harvest-time").empty();
+        $('#IsIndoors').prop("checked", false);
         if ($(this).prop("checked")) {
-            $('#IsIndoors').prop("checked", false);
             getCrops('ginger');
         }
         else {
@@ -100,8 +101,9 @@
     })
 
     $('#IsIndoors').click(function (e) {
+        $("#harvest-time").empty();
+        $('#IsOnGinger').prop("checked", false);
         if ($(this).prop("checked")) {
-            $('#IsOnGinger').prop("checked", false);
             getCrops('all');
         }
         else {
@@ -138,6 +140,23 @@
         })
     }
 
+    function changeCrop() {
+        $.ajax({
+            url: "/GrowingCrop/EstHarvest",
+            data: $("#frmAddCrop").serialize(),
+            dataType: "json",
+            beforeSend: () => { },
+            success: (response) => {
+                $("#harvest-time").empty();
+                $("#harvest-time").append(response.message);
+            },
+            error: (errResponse) => {
+                console.error(errResponse);
+            }
+
+        })
+    }
+
     $('.fertilizerCheck').click((e) => {
         if ($(e.target).attr('id') != 'IsSG') {
             $('#IsSG').prop("checked", false);
@@ -148,6 +167,7 @@
         if ($(e.target).attr('id') != 'IsHSG') {
             $('#IsHSG').prop("checked", false);
         }
+        changeCrop();
     })
 
     $("#btn-add").click((e) => $("#frmAddCrop").submit());

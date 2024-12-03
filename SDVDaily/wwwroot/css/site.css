@@ -27,3 +27,16 @@ div.alert-popup {
     right: 0;
     z-index: 9999999;
 }
+
+.select2-selection__choice {
+    padding-bottom: 0 !important
+}
+
+.select2-results__options .select2-results__option[aria-selected=true]:not(.select2-results__option--highlighted) {
+    background-color: white !important;
+    color: black !important;
+}
+
+.select2-results__options .select2-results__option[aria-selected=true] {
+    font-weight: 600 !important;
+}

@@ -163,6 +163,10 @@ namespace SDVDaily.Controllers
             crop.GrowthTime = findCrop.GrowthTime;
             crop.RegrowthTime = findCrop.RegrowthTime;
             crop.Unirrigated = findCrop.Unirrigated;
+
+            crop.IsRegrowing = findCrop.RegrowthTime > 0;
+            crop.IsUnirrigated = findCrop.Unirrigated > 0;
+
             crop.IsWalkable = findCrop.IsWalkable;
             crop.StartYear = findCrop.StartYear;
             crop.SellPrice = findCrop.SellPrice;
@@ -177,14 +181,73 @@ namespace SDVDaily.Controllers
                 crop.Seasons.Add(db.Seasons.Where(s => s.Id.Equals(cropSeason.SeasonId)).Single<Season>());
             }
 
-            crop.CreatedAt = findCrop.CreatedAt;
-            crop.UpdatedAt = findCrop.UpdatedAt;
-            crop.IsDeleted = findCrop.IsDeleted;
+            ViewBag.Seasons = db.Seasons.ToList();
+            ViewBag.Categories = db.CropCategories.ToList();
 
             ViewBag.Title = "Edit Crop";
             ViewBag.ImageFolder = imageFolder;
 
             return View(crop);
+        }
+
+        [HttpPost]
+        public async Task<ResponseViewModel<Crop>> Edit(CropViewModel crop, string[] seasons)
+        {
+            ResponseViewModel<Crop> response = new ResponseViewModel<Crop>();
+
+            Crop? extCrop = await db.Crops.FindAsync(crop.Id);
+            if (extCrop == null)
+            {
+                response.statusCode = HttpStatusCode.BadRequest;
+                response.message = "Crop not found!";
+            }
+            else
+            {
+                extCrop.Name = crop.Name;
+                extCrop.CategoryId = crop.CategoryId;
+                extCrop.GrowthTime = crop.GrowthTime;
+
+                extCrop.RegrowthTime = crop.IsRegrowing ? crop.RegrowthTime : null;
+                extCrop.Unirrigated = crop.IsUnirrigated ? crop.Unirrigated : null;
+
+                extCrop.IsWalkable = crop.IsWalkable;
+                extCrop.StartYear = crop.StartYear;
+                extCrop.SellPrice = crop.SellPrice;
+                extCrop.UpdatedAt = DateTime.Now;
+                db.Update(extCrop);
+
+                List<int> cropSeasons = await db.CropSeasons.Where(cs => cs.CropId == crop.Id).Select(cs => cs.SeasonId).ToListAsync();
+                List<int> newSeasons = new List<int>();
+                foreach (string s in seasons)
+                    newSeasons.Add(int.Parse(s));
+
+                // Removing seasons that are not in updated list
+                List<int> notInNew = cropSeasons.Except(newSeasons).ToList();
+                foreach (int season in notInNew)
+                {
+                    CropSeason removeCS = db.CropSeasons.Where(cs => cs.CropId == crop.Id && cs.SeasonId == season).Single();
+                    db.Remove(removeCS);
+                }
+
+                // Adding seasons that are not in existing list
+                List<int> notInExt = newSeasons.Except(cropSeasons).ToList();
+                foreach (int season in notInExt)
+                {
+                    CropSeason addCS = new CropSeason()
+                    {
+                        CropId = crop.Id,
+                        SeasonId = season
+                    };
+                    db.Add(addCS);
+                }
+                await db.SaveChangesAsync();
+
+                response.statusCode = HttpStatusCode.OK;
+                response.message = "Crop updated!";
+                response.data = extCrop;
+            }
+
+            return response;
         }
 
         [HttpGet]

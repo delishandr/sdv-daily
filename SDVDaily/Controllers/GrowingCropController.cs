@@ -31,6 +31,77 @@ namespace SDVDaily.Controllers
             return View();
         }
 
+        private int GrowthTime(int baseGrowth, bool isAgriculturist, bool isSG, bool isDSG, bool isHSG)
+        {
+            double percent = 100;
+            if (isAgriculturist)
+                percent -= 10;
+
+            if (isSG)
+                percent -= 10;
+            else if (isDSG)
+                percent -= 25;
+            else if (isHSG)
+                percent -= 33;
+
+            int growth = (int)Math.Floor(baseGrowth * percent / 100);
+
+            return growth;
+        }
+
+        public async Task<ResponseViewModel<string>> EstHarvest(GrowingCropViewModel selected)
+        {
+            ResponseViewModel<string> response = new ResponseViewModel<string>();
+
+            SaveFile file = await db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).FirstAsync();
+            Crop crop = await db.Crops.Where(c => c.Id == selected.CropId).SingleAsync();
+
+            int growth = GrowthTime(crop.GrowthTime, file.IsAgriculturist, selected.IsSG, selected.IsDSG, selected.IsHSG);
+            int harvestDay = file.Day + growth;
+            int harvestSeason = file.Season;
+            if (harvestDay > 28)
+            {
+                harvestDay -= 28;
+                harvestSeason++;
+                if (harvestSeason > 4)
+                    harvestSeason = 1;
+            }
+
+            Season? season = new Season();
+            
+            if (!selected.IsOnGinger && !selected.IsIndoors)
+            {
+                season = (
+                    from s in db.Seasons
+                    join cs in db.CropSeasons
+                        on s.Id equals cs.SeasonId
+                    where cs.CropId == selected.CropId && cs.SeasonId == harvestSeason
+                    select s
+                ).FirstOrDefault();
+            }
+            else
+            {
+                season = (
+                    from s in db.Seasons
+                    where s.Id == harvestSeason
+                    select s
+                ).FirstOrDefault();
+            }
+
+            if (season == null)
+            {
+                response.statusCode = HttpStatusCode.Continue;
+                response.message = "<div class=\"text-danger\"><b>Warning:</b> Crop might not be harvestable in time!</div>";
+            }
+            else
+            {
+                response.statusCode = HttpStatusCode.OK;
+                response.message = $"<div>Estimated harvest time: <b>{season.Name} {harvestDay}</b></div>";
+            }
+
+            return response;
+        }
+
         [HttpPost]
         public async Task<ResponseViewModel<GrowingCrop>> Add(GrowingCropViewModel addCrop)
         {
@@ -55,18 +126,7 @@ namespace SDVDaily.Controllers
             crop.IsOnGinger = addCrop.IsOnGinger;
             crop.IsIndoors = addCrop.IsIndoors;
 
-            double percent = 100;
-            if (addCrop.IsAgriculturist)
-                percent -= 10;
-
-            if (addCrop.IsSG)
-                percent -= 10;
-            else if (addCrop.IsDSG)
-                percent -= 25;
-            else if (addCrop.IsHSG)
-                percent -= 33;
-
-            int growth = (int)Math.Floor(extCrop.GrowthTime * percent / 100);
+            int growth = GrowthTime(extCrop.GrowthTime, file.IsAgriculturist, addCrop.IsSG, addCrop.IsDSG, addCrop.IsHSG);
 
             CropSeason? cs = new CropSeason();
 

@@ -6,6 +6,180 @@
     Layout = null;
 }
 
+<div>
+    <form id="frmEditCrop">
+        <div class="card">
+            <div class="card-body">
+                <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Name</div>
+                    <div class="col-10">
+                        <input class="form-control" type="text" id="Name" name="Name" value="@Model.Name" />
+                    </div>
+                </div>
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Seasons</div>
+                    <div class="col-10">
+                        <select class="form-select" id="Season" onclick="changeSeason()" multiple>
+                            @foreach (Season season in ViewBag.Seasons)
+                            {
+                                if (Model.SeasonIds.Contains(season.Id))
+                                {
+                                    <option value="@season.Id" selected>@season.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@season.Id">@season.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Category</div>
+                    <div class="col-10">
+                        <select class="form-select" id="CategoryId" name="CategoryId">
+                            <option value="">-- Select category --</option>
+                            @foreach (CropCategory category in ViewBag.Categories)
+                            {
+                                if (Model.CategoryId == category.Id)
+                                {
+                                    <option value="@category.Id" selected>@category.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-3">
+                        <input class="form-check-input" type="checkbox" value="true" id="IsRegrowing" name="IsRegrowing" @(Model.IsRegrowing ? "checked='checked'" : "")>
+                        <label class="form-check-label" for="IsRegrowing">
+                            Regrows?
+                        </label>
+
+                    </div>
+                    <div class="col-3">
+                        <input class="form-check-input" type="checkbox" value="true" id="IsUnirrigated" name="IsUnirrigated" @(Model.IsUnirrigated ? "checked='checked'" : "")>
+                        <label class="form-check-label" for="IsUnirrigated">
+                            Irrigated?
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <input class="form-check-input" type="checkbox" value="true" id="IsWalkable" name="IsWalkable" @(Model.IsWalkable ? "checked='checked'" : "")>
+                        <label class="form-check-label" for="IsWalkable">
+                            Is walkable?
+                        </label>
+
+                    </div>
+                </div>
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Growth Time</div>
+                    <div class="col-2">
+                        <input class="form-control" type="number" id="GrowthTime" name="GrowthTime" value="@Model.GrowthTime" />
+                    </div>
+                    <div class="col-2 fw-bold">Regrowth Time</div>
+                    <div class="col-2">
+                        <input class="form-control" type="number" id="RegrowthTime" name="RegrowthTime" value="@Model.RegrowthTime" @(Model.IsRegrowing ? "" : "disabled='disabled'") />
+                    </div>
+                    <div class="col-2 fw-bold">Unirrigated</div>
+                    <div class="col-2">
+                        <input class="form-control" type="number" id="Unirrigated" name="Unirrigated" value="@Model.Unirrigated" @(Model.IsUnirrigated ? "" : "disabled='disabled'") />
+                    </div>
+                </div>
+                <div class="row mb-3 d-flex align-items-center">
+                    <div class="col-2 fw-bold">Start Year</div>
+                    <div class="col-4">
+                        <input class="form-control" type="number" id="StartYear" name="StartYear" value="@Model.StartYear" />
+                    </div>
+                    <div class="col-2 fw-bold">Sell Price</div>
+                    <div class="col-4">
+                        <input class="form-control" type="number" id="SellPrice" name="SellPrice" value="@Model.SellPrice" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary">Cancel</button>
+                <button id="btn-edit-crop" type="submit" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <script>
     $('#staticModalLgLabel').text("@ViewBag.Title");
+    $(document).ready(() => {
+        $('.select2-search--inline').prop('hidden', true);
+    })
+    $('#Season').select2({
+        theme: "bootstrap-5",
+        width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+        placeholder: $(this).data('placeholder'),
+        closeOnSelect: true,
+    });
+
+    function changeSeason() {
+        $('.select2-search--inline').prop('hidden', true);
+    }
+
+    $('#IsRegrowing').click((e) => {
+        if ($('#IsRegrowing').prop("checked")) {
+            $('#RegrowthTime').prop('disabled', false);
+        }
+        else {
+            $('#RegrowthTime').prop('disabled', true);
+            $('#RegrowthTime').val('');
+        }
+    })
+
+    $('#IsUnirrigated').click((e) => {
+        if ($('#IsUnirrigated').prop("checked")) {
+            $('#Unirrigated').prop('disabled', false);
+        }
+        else {
+            $('#Unirrigated').prop('disabled', true);
+            $('#Unirrigated').val('');
+        }
+    })
+
+
+    $('#btn-edit-crop').click(function (e) {
+        e.preventDefault();
+        console.log($('#Season').val());
+        console.log($("#frmEditCrop").serialize());
+
+        let formData = new FormData($("#frmEditCrop")[0]);
+        var object = {};
+        formData.forEach((value, key) => object[key] = value);
+        var json = JSON.stringify(object);
+        console.log(json)
+        
+        $.ajax({
+            url: "/Crop/Edit/" + @Model.Id,
+            type: "post",
+            data: { 
+                'crop': object,
+                'seasons': $('#Season').val()
+            },
+            dataType: "json",
+            success: (response) => {
+                if (response.statusCode == 200) {
+                    alert(response.message, 'info');
+                    $('#staticModalLg').modal('hide');
+                    setTimeout(function (e) {
+                        location.reload();
+                    }, 2000);
+                }
+                else {
+                    alert(response.message, 'danger');
+                }
+            },
+            error: (errResponse) => {
+                console.error(errResponse);
+            }
+        });
+    })
 </script>
