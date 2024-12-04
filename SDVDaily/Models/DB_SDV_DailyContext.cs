@@ -19,9 +19,13 @@ namespace SDVDaily.Models
         public virtual DbSet<Crop> Crops { get; set; } = null!;
         public virtual DbSet<CropCategory> CropCategories { get; set; } = null!;
         public virtual DbSet<CropSeason> CropSeasons { get; set; } = null!;
+        public virtual DbSet<Day> Days { get; set; } = null!;
         public virtual DbSet<Event> Events { get; set; } = null!;
         public virtual DbSet<EventDay> EventDays { get; set; } = null!;
         public virtual DbSet<GrowingCrop> GrowingCrops { get; set; } = null!;
+        public virtual DbSet<Reminder> Reminders { get; set; } = null!;
+        public virtual DbSet<ReminderRepeat> ReminderRepeats { get; set; } = null!;
+        public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<SaveFile> SaveFiles { get; set; } = null!;
         public virtual DbSet<Season> Seasons { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
@@ -129,6 +133,29 @@ namespace SDVDaily.Models
                     .HasColumnName("updatedAt");
             });
 
+            modelBuilder.Entity<Day>(entity =>
+            {
+                entity.ToTable("day");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
             modelBuilder.Entity<Event>(entity =>
             {
                 entity.ToTable("event");
@@ -226,6 +253,77 @@ namespace SDVDaily.Models
                 entity.Property(e => e.NextHarvestSeason).HasColumnName("nextHarvestSeason");
 
                 entity.Property(e => e.SaveId).HasColumnName("saveId");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<Reminder>(entity =>
+            {
+                entity.ToTable("reminder");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Description)
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.NextRemind).HasColumnName("nextRemind");
+
+                entity.Property(e => e.NextRemindSeason).HasColumnName("nextRemindSeason");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<ReminderRepeat>(entity =>
+            {
+                entity.ToTable("reminder_repeat");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Day).HasColumnName("day");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.ReminderId).HasColumnName("reminder_id");
+
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedAt");
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("role");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdAt")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")

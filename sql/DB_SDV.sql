@@ -303,3 +303,47 @@ create table [user] (
 	isDeleted BIT NOT NULL DEFAULT (0)
 )
 go
+
+create table reminder (
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	description TEXT,
+	nextRemind INT,
+	nextRemindSeason INT,
+	createdAt DATETIME NOT NULL DEFAULT (GETDATE()),
+	updatedAt DATETIME,
+	isDeleted BIT NOT NULL DEFAULT (0)
+)
+go
+
+create table reminder_repeat (
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	reminder_id INT,
+	day INT,
+	createdAt DATETIME NOT NULL DEFAULT (GETDATE()),
+	updatedAt DATETIME,
+	isDeleted BIT NOT NULL DEFAULT (0)
+)
+go
+
+create table day (
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	name VARCHAR(10),
+	createdAt DATETIME NOT NULL DEFAULT (GETDATE()),
+	updatedAt DATETIME,
+	isDeleted BIT NOT NULL DEFAULT (0)
+)
+go
+
+insert into day (name) values 
+	('Monday'), ('Tuesday'), ('Wednesday'), ('Thursday'), ('Friday'), ('Saturday'), ('Sunday');
+
+create table role (
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	name VARCHAR(20),
+	createdAt DATETIME NOT NULL DEFAULT (GETDATE()),
+	updatedAt DATETIME,
+	isDeleted BIT NOT NULL DEFAULT (0)
+)
+go
+
+insert into role (name) values ('Admin'), ('User');
