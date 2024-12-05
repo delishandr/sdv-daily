@@ -347,3 +347,11 @@ create table role (
 go
 
 insert into role (name) values ('Admin'), ('User');
+
+alter table reminder
+	add saveId INT
+GO
+
+alter table reminder
+	add nextRemindYear INT
+GO

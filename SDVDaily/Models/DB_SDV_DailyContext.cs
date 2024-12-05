@@ -280,6 +280,10 @@ namespace SDVDaily.Models
 
                 entity.Property(e => e.NextRemindSeason).HasColumnName("nextRemindSeason");
 
+                entity.Property(e => e.NextRemindYear).HasColumnName("nextRemindYear");
+
+                entity.Property(e => e.SaveId).HasColumnName("saveId");
+
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
                     .HasColumnName("updatedAt");

@@ -59,6 +59,10 @@
                                     @Context.Session.GetString("saveName")'s Farm
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item manage-farm" asp-controller="Home" asp-action="ManageFarm">
+                                        <i class="fas fa-cog me-2"></i>Add To-Do</a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
                                     <li><a class="dropdown-item change-farm" href="#" data-bs-toggle="modal" data-bs-target="#staticModal"><i class="fas fa-sync me-2"></i>Change Farm</a></li>
                                     <li><a class="dropdown-item add-farm" href="#" data-bs-toggle="modal" data-bs-target="#staticModal"><i class="fas fa-plus me-2"></i>New Farm</a></li>
                                 </ul>

@@ -28,6 +28,7 @@ div.alert-popup {
     z-index: 9999999;
 }
 
+/* Override select2's selected options */
 .select2-selection__choice {
     padding-bottom: 0 !important
 }
@@ -39,4 +40,17 @@ div.alert-popup {
 
 .select2-results__options .select2-results__option[aria-selected=true] {
     font-weight: 600 !important;
+}
+
+/* Remove arrows/spinner buttons from number inputs */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
 }

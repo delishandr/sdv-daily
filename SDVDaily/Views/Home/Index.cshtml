@@ -6,7 +6,8 @@
     <div class="d-flex">
         <div class="h4">@ViewBag.Season @(ViewBag.Day), Year @ViewBag.Year</div>
         <div class="ms-auto d-flex gap-2">
-            <a type="button" class="btn btn-secondary" asp-action="ManageFarm">Manage Farm</a>
+            <button type="button" id="add-reminder-btn" class="btn btn-secondary" 
+                    data-bs-toggle="modal" data-bs-target="#staticModal">Add Reminder</button>
             <button type="button" id="add-crop-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticModalLg">Add Crop</button>
         </div>
     </div>
@@ -142,6 +143,11 @@ else if (Context.Session.GetInt32("userId").HasValue)
     $(".add-farm").click((e) => {
         $("#staticModalBody").html(spinner);
         $("#staticModalBody").load("/SaveFile/New");
+    })
+
+    $("#add-reminder-btn").click((e) => {
+        $("#staticModalBody").html(spinner);
+        $("#staticModalBody").load("/Reminder/Add");
     })
 
     function nextDay(count) {

@@ -1,0 +1,223 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+
+<div>
+    <div class="card card-body">
+        <form id="frmAddReminder">
+            <div class="row align-items-center mb-3">
+                <div class="col-lg-12 fw-lightbold mb-1">Description</div>
+                <div class="col-lg-12 mt-1">
+					<textarea class="form-control" id="Description" name="Description" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="fw-lightbold mb-1">Reminder Type</div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="RemindType" id="RemindDay" value="day" checked>
+                    <label class="form-check-label" for="RemindDay">
+                        By duration
+                    </label>
+                </div>
+                <div class="ms-3 row align-items-center" id="RemindDayInput">
+                    <div class="col-4">Remind me in</div>
+                    <div class="col-3">
+                        <input class="form-control" type="number" id="NextRemindDay" name="NextRemindDay" min="0" value="0" required />
+                    </div>
+                    <div class="col-3">days</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="RemindType" id="RemindDate" value="date">
+                    <label class="form-check-label" for="RemindDate">
+                        Specific date
+                    </label>
+                </div>
+                <div class="ms-3 row align-items-center" id="RemindDateInput" hidden>
+                    <div class="col-4">Remind me in</div>
+                    <div class="col-4">
+                        <select class="form-select" id="NextRemindSeason" name="NextRemindSeason">
+                            @foreach (Season season in ViewBag.Seasons)
+                            {
+                                if (season.Id == ViewBag.NextSeason)
+                                {
+                                    <option value="@season.Id" selected>@season.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@season.Id">@season.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <select class="form-select" id="NextRemind" name="NextRemind">
+                            @for (int i = 1; i <= 28; i++)
+                            {
+                                if (i == ViewBag.NextDay)
+                                {
+                                    <option selected>@i</option>
+                                }
+                                else
+                                {
+                                    <option>@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div class="fw-lightbold mb-1">Frequency</div>
+                <div class="form-check">
+                    <input class="form-check-input freqCheck" type="radio" name="Frequency" id="FreqOnce" value="once" checked>
+                    <label class="form-check-label" for="FreqOnce">
+                        One time
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input freqCheck" type="radio" name="Frequency" id="FreqWeek" value="weekly">
+                    <label class="form-check-label" for="FreqWeek">
+                        Weekly
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input freqCheck" type="radio" name="Frequency" id="FreqDaily" value="daily">
+                    <label class="form-check-label" for="FreqDaily">
+                        Daily
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input freqCheck" type="radio" name="Frequency" id="FreqCustom" value="custom">
+                    <label class="form-check-label" for="FreqCustom">
+                        Custom
+                    </label>
+                </div>
+                <div class="ms-4 mt-1 row" id="FreqCustomInput" hidden>
+					<div class="col-4">
+						@foreach (Day day in ViewBag.DaysLeft)
+						{
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" value="" id="Day-@(day.Id)" data-id="@day.Id">
+								<label class="form-check-label" for="Day-@(day.Id)">
+									@day.Name
+								</label>
+							</div>
+						}
+					</div>
+                    <div class="col-4">
+                        @foreach (Day day in ViewBag.DaysRight)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="Day-@(day.Id)" data-id="@day.Id">
+                                <label class="form-check-label" for="Day-@(day.Id)">
+                                    @day.Name
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-secondary">Cancel</button>
+        <button id="btn-add" class="btn btn-primary">Add</button>
+    </div>
+</div>
+
+<script>
+    $('#staticModalLabel').text("@ViewBag.Title");
+
+    $('#RemindDay').click(() => {
+        $('#RemindDateInput').prop('hidden', true);
+        $('#RemindDayInput').prop('hidden', false);
+    });
+    $('#RemindDate').click(() => {
+        $('#RemindDayInput').prop('hidden', true);
+        $('#RemindDateInput').prop('hidden', false);
+        $('#NextRemindDuration').val(0);
+    });
+
+    $('.freqCheck').click(() => {
+        if ($('#FreqCustom').prop('checked')) {
+            $('#FreqCustomInput').prop('hidden', false);
+        }
+        else {
+            $('#FreqCustomInput').prop('hidden', true);
+        }
+    })
+
+    $("#btn-add").click((e) => $("#frmAddReminder").submit());
+
+    $("#frmAddReminder").submit(function (e) {
+        e.preventDefault();
+        // console.log($("#frmAddReminder").serialize());
+        let formData = new FormData($("#frmAddReminder")[0]);
+        var object = {};
+        formData.forEach((value, key) => object[key] = value);
+
+        let freqs = [];
+        for (let i = 1; i <= 7; i++) {
+            console.log($(`#Day-${i}`).prop('checked'));
+            if ($(`#Day-${i}`).prop('checked')) {
+                freqs.push(i);
+            }
+        }
+        object.Frequency = freqs;
+        object.FreqType = $('input[name=Frequency]:checked', '#frmAddReminder').val();
+        object.RemindType = $('input[name=RemindType]:checked', '#frmAddReminder').val()
+
+        console.log(object)
+
+        if ($("#frmAddReminder").valid()) {
+            $.ajax({
+                url: "/Reminder/Add",
+                type: "post",
+                data: object,
+                dataType: "json",
+                success: (response) => {
+                    $('#alertText').text(response.message);
+                    if (response.statusCode == 201) {
+                        alert(response.message, 'info');
+                        $('#staticModal').modal('hide');
+                        setTimeout(function (e) {
+                            location.reload();
+                        }, 2000);
+                    }
+                    else {
+                        alert(response.message, 'danger');
+                    }
+                },
+                error: (errResponse) => {
+                    console.error(errResponse);
+                }
+            });
+        }
+        else {
+            console.error("Data is not valid!");
+        }
+    })
+
+    $('#frmAddReminder').validate({
+        errorClass: "is-invalid",
+        rules: {
+            Description: "required",
+            NextRemindDuration: {
+                required: true,
+                min: 0
+            }
+        },
+        errorPlacement: function () {
+            return false;
+        },
+        highlight: function (element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element) {
+            $(element).removeClass('is-invalid');
+        }
+    })
+</script>

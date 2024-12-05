@@ -15,7 +15,7 @@ namespace SDVDaily
             // Add browser session
             builder.Services.AddSession(opt =>
             {
-                opt.IdleTimeout = TimeSpan.FromMinutes(15);
+                opt.IdleTimeout = TimeSpan.FromMinutes(150);
             });
 
             //SQL Server DB
