@@ -23,7 +23,7 @@ namespace SDVDaily.Controllers
             if (HttpContext.Session.GetInt32("saveId").HasValue)
             {
                 // Method-based syntax
-                SaveFile file = await db.SaveFiles
+                SaveFile save = await db.SaveFiles
                     .Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).FirstAsync();
 
                 // Query syntax
@@ -38,27 +38,27 @@ namespace SDVDaily.Controllers
                     $"select * from save_file where id = {HttpContext.Session.GetInt32("saveId")}"    
                 ).FirstAsync();
 
-                ViewBag.Year = file.Year;
-                ViewBag.Season = db.Seasons.Where(s => s.Id == file.Season).Select(s => s.Name).First();
-                ViewBag.Day = file.Day;
-                ViewBag.HasFarmAnimals = file.HasFarmAnimals;
-                ViewBag.HasPet = file.HasPet;
+                ViewBag.Year = save.Year;
+                ViewBag.Season = db.Seasons.Where(s => s.Id == save.Season).Select(s => s.Name).First();
+                ViewBag.Day = save.Day;
+                ViewBag.HasFarmAnimals = save.HasFarmAnimals;
+                ViewBag.HasPet = save.HasPet;
 
                 // Method-based syntax
                 var query = db.GrowingCrops
-                    .Where(g => g.SaveId == file.Id && g.NextHarvest == file.Day && g.NextHarvestSeason == file.Season);
+                    .Where(g => g.SaveId == save.Id && g.NextHarvest == save.Day && g.NextHarvestSeason == save.Season);
 
                 // Query syntax
                 var query1 =
                     from g in db.GrowingCrops
-                    where g.SaveId == file.Id
-                    && g.NextHarvest == file.Day
-                    && g.NextHarvestSeason == file.Season
+                    where g.SaveId == save.Id
+                    && g.NextHarvest == save.Day
+                    && g.NextHarvestSeason == save.Season
                     select g;
 
                 // Raw SQL syntax
                 var query2 = db.GrowingCrops.FromSqlInterpolated(
-                    $"select * from growing_crop where saveId = {file.Id} and nextHarvest = {file.Day} and nextHarvestSeason = {file.Season}"    
+                    $"select * from growing_crop where saveId = {save.Id} and nextHarvest = {save.Day} and nextHarvestSeason = {save.Season}"    
                 );
 
                 List<GrowingCrop> harvests = await query.ToListAsync();
@@ -84,12 +84,12 @@ namespace SDVDaily.Controllers
 
                 // ORM syntax
                 ViewBag.Birthday = db.Villagers
-                    .Where(v => !v.IsDeleted && v.BirthMonth == file.Season && v.BirthDay == file.Day)
+                    .Where(v => !v.IsDeleted && v.BirthMonth == save.Season && v.BirthDay == save.Day)
                     .FirstOrDefault();
 
                 // Raw SQL syntax
                 Villager? curBirthday = db.Villagers.FromSqlInterpolated(
-                    $"select * from villager where isDeleted = 0 and birthMonth = {file.Season} and birthDay = {file.Day}"
+                    $"select * from villager where isDeleted = 0 and birthMonth = {save.Season} and birthDay = {save.Day}"
                 ).FirstOrDefault();
 
                 // ORM syntax
@@ -97,7 +97,7 @@ namespace SDVDaily.Controllers
                     from e in db.Events
                     join ed in db.EventDays
                         on e.Id equals ed.EventId
-                    where !e.IsDeleted && ed.Day == file.Day && ed.Season == file.Season
+                    where !e.IsDeleted && ed.Day == save.Day && ed.Season == save.Season
                     select new Event { 
                         Id = e.Id,
                         Name = e.Name,
@@ -111,8 +111,12 @@ namespace SDVDaily.Controllers
 
                 // Raw SQL syntax
                 Event? curEvent = db.Events.FromSqlInterpolated(
-                    $"select e.* from event as e join event_day as ed on e.id = ed.eventId where e.isDeleted = 0 and ed.day = {file.Day} and ed.season = {file.Season}"
+                    $"select e.* from event as e join event_day as ed on e.id = ed.eventId where e.isDeleted = 0 and ed.day = {save.Day} and ed.season = {save.Season}"
                 ).FirstOrDefault();
+
+                ViewBag.Reminders = db.Reminders
+                    .Where(r => r.SaveId == save.Id && r.NextRemind == save.Day && r.NextRemindSeason == save.Season && r.NextRemindYear == save.Year)
+                    .ToList();
 
                 ViewBag.ImageFolder = imageFolder;
             }
@@ -135,6 +139,12 @@ namespace SDVDaily.Controllers
 			if (HttpContext.Session.GetInt32("saveId").HasValue)
             {
                 SaveFile save = db.SaveFiles.Where(s => s.Id == HttpContext.Session.GetInt32("saveId")).First();
+
+                List<Reminder> todaysReminders = db.Reminders
+                    .Where(r => r.SaveId == save.Id && r.NextRemind == save.Day && r.NextRemindSeason == save.Season && r.NextRemindYear == save.Year)
+                    .ToList();
+
+                
 
                 if (save.Day == 28)
                 {
@@ -161,7 +171,51 @@ namespace SDVDaily.Controllers
                 //db.Database.ExecuteSqlInterpolated(
                 //    $"update save_file set year = {save.Year}, season = {save.Season}, day = {save.Day}, updatedAt = {updateTime.ToString()} where id = {save.Id}"    
                 //);
-                
+
+                int dayOfWeek = save.Day % 7;
+                if (dayOfWeek == 0)
+                    dayOfWeek = 7;
+
+                foreach (Reminder reminder in todaysReminders)
+                {
+                    List<ReminderRepeat> repeat = db.ReminderRepeats.Where(rr => rr.ReminderId == reminder.Id).ToList();
+
+                    if (repeat.Count == 0)
+                    {
+                        // remind only once/not repeating
+                        db.Remove(reminder);
+                    }
+                    else
+                    {
+                        int iter = dayOfWeek;
+                        int i = 1;
+                        while (i <= 7)
+                        {
+                            if (repeat.Any(r => r.Day == iter))
+                            {
+                                reminder.NextRemind += i;
+                                if (reminder.NextRemind > 28)
+                                {
+                                    reminder.NextRemindSeason++;
+                                    reminder.NextRemind -= 28;
+                                    if (reminder.NextRemindSeason > 4)
+                                    {
+                                        reminder.NextRemindYear++;
+                                        reminder.NextRemindSeason = 1;
+                                    }
+                                    db.Update(reminder);
+                                }
+                                break;
+                            }
+
+                            iter++;
+                            i++;
+                            if (iter > 7)
+                                iter = 1;
+                        }
+                    }
+                }
+
                 if (save.Day == 1)
                 {
                     List<GrowingCrop> growingCrops = db.GrowingCrops

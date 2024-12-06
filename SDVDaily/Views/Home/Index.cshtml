@@ -90,11 +90,20 @@
                 </label>
             </div>
         }
+        <ul>
+            @foreach (Reminder reminder in ViewBag.Reminders)
+            {
+                <li>@reminder.Description</li>
+            }
+            @if (ViewBag.Harvest.Count > 0)
+            {
+                <li>Harvests:</li>
+                
+            }
+        </ul>
         @if (ViewBag.Harvest.Count > 0)
         {
-            <div class="mt-2">
-                <div class="fw-lightbold mb-1">Harvests:</div>
-				<div class="ms-3 harvest-checks">
+				<div class="ms-5 harvest-checks">
 					@foreach (GrowingCropViewModel crop in ViewBag.Harvest)
 					{
                         <div class="form-check" data-grow="@crop.Id" data-id="@crop.CropId">
@@ -105,8 +114,7 @@
 						</div>
 					}
 				</div>
-                
-            </div>
+              
         }
     </div>
     <div class="d-flex justify-content-between mt-4">
@@ -186,3 +194,9 @@ else if (Context.Session.GetInt32("userId").HasValue)
         }
     }
 </script>
+
+<style scoped>
+    ul {
+        margin-bottom: 0;
+    }
+</style>
